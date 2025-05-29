@@ -1,0 +1,292 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn SQL Injection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-800">Learn SQL Injection</h1>
+      <p class="text-lg text-gray-600 mt-2">An interactive guide to understanding SQL injection vulnerabilities</p>
+    </header>
+
+    <section id="lessons" class="space-y-6">
+      <!-- Challenge 1: Basic Login Bypass -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">1. Basic Login Bypass</h2>
+        <p class="text-gray-700 mt-2">SQL injection can bypass login forms. The query is: <code>SELECT * FROM users WHERE username='[input]' AND password='[input]'</code>.</p>
+        <p class="text-gray-700 mt-2">Try it: Can you log in as 'admin' without knowing the password?</p>
+        <form class="mt-4">
+          <input id="login-user" type="text" placeholder="Username" class="p-2 border rounded w-full mb-2">
+          <input id="login-pass" type="text" placeholder="Password" class="p-2 border rounded w-full">
+          <button type="button" onclick="tryLoginBypass()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Test Login</button>
+        </form>
+        <p id="login-result" class="mt-2 text-gray-700"></p>
+        <input id="login-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('login-input', 'CTF{login_bypass}', 'login-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="login-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('login-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="login-hint" class="mt-2 text-gray-700 hidden">Use a username like <code>admin' --</code> to comment out the password check. The flag is revealed in the result message.</p>
+      </div>
+
+      <!-- Challenge 2: Extract Hidden User -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">2. Extract Hidden User</h2>
+        <p class="text-gray-700 mt-2">SQL injection can reveal hidden data. The query is: <code>SELECT username, flag FROM users WHERE id=[input]</code>.</p>
+        <p class="text-gray-700 mt-2">Try it: Can you find a hidden user's flag?</p>
+        <input id="hidden-user-input" type="text" placeholder="Enter ID to query" class="mt-4 p-2 border rounded w-full">
+        <button type="button" onclick="tryHiddenUser()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Test Query</button>
+        <p id="hidden-result" class="mt-2 text-gray-700"></p>
+        <input id="hidden-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('hidden-input', 'CTF{hidden_user}', 'hidden-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="hidden-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('hidden-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hidden-hint" class="mt-2 text-gray-700 hidden">Try an ID like <code>2</code> or manipulate the query to show all users, e.g., <code>1 OR 1=1</code>. The flag is in the query result.</p>
+      </div>
+
+      <!-- Challenge 3: Union-Based Injection -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">3. Union-Based Injection</h2>
+        <p class="text-gray-700 mt-2">Union injections combine query results. The query is: <code>SELECT name FROM items WHERE id=[input]</code>.</p>
+        <p class="text-gray-700 mt-2">Try it: Can you extract a flag from a hidden table?</p>
+        <input id="union-input" type="text" placeholder="Enter ID to query" class="mt-4 p-2 border rounded w-full">
+        <button type="button" onclick="tryUnionInjection()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Test Query</button>
+        <p id="union-result" class="mt-2 text-gray-700"></p>
+        <input id="union-flag-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('union-flag-input', 'CTF{union_flag}', 'union-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="union-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('union-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="union-hint" class="mt-2 text-gray-700 hidden">Use a UNION query to select from a table named <code>flags</code>, e.g., <code>1 UNION SELECT flag FROM flags</code>. The flag is in the result.</p>
+      </div>
+
+      <!-- Challenge 4: Boolean-Based Injection -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">4. Boolean-Based Injection</h2>
+        <p class="text-gray-700 mt-2">Boolean injections test query conditions. The query is: <code>SELECT * FROM users WHERE username='[input]' AND password='[input]'</code>.</p>
+        <p class="text-gray-700 mt-2">Try it: Can you find a flag by testing true/false conditions?</p>
+        <form class="mt-4">
+          <input id="bool-user" type="text" placeholder="Username" class="p-2 border rounded w-full mb-2">
+          <input id="bool-pass" type="text" placeholder="Password" class="p-2 border rounded w-full">
+          <button type="button" onclick="tryBooleanInjection()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Test Login</button>
+        </form>
+        <p id="bool-result" class="mt-2 text-gray-700"></p>
+        <input id="bool-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('bool-input', 'CTF{boolean_flag}', 'bool-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="bool-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('bool-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="bool-hint" class="mt-2 text-gray-700 hidden">Use a condition like <code>guest' AND password='flag' --</code> to test if 'flag' is the password. The flag is revealed in the result.</p>
+      </div>
+
+      <!-- Challenge 5: Table Name Discovery -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">5. Table Name Discovery</h2>
+        <p class="text-gray-700 mt-2">SQL injection can reveal database structure. The query is: <code>SELECT flag FROM [input] WHERE id=1</code>.</p>
+        <p class="text-gray-700 mt-2">Try it: Can you find a table containing a flag?</p>
+        <input id="table-input" type="text" placeholder="Enter table name" class="mt-4 p-2 border rounded w-full">
+        <button type="button" onclick="tryTableDiscovery()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Test Query</button>
+        <p id="table-result" class="mt-2 text-gray-700"></p>
+        <input id="table-flag-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('table-flag-input', 'CTF{table_flag}', 'table-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="table-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('table-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="table-hint" class="mt-2 text-gray-700 hidden">Try common table names like <code>flags</code> or <code>secrets</code>. The flag is in the query result.</p>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
+      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/5</p>
+    </section>
+  </div>
+
+  <script>
+    let flagsFound = 0;
+    const foundFlags = new Set(); // Track unique flags to prevent double-counting
+    let db;
+
+    // Initialize sql.js and create database
+    async function initDatabase() {
+      try {
+        const SQL = await initSqlJs({
+          locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.wasm`
+        });
+        db = new SQL.Database();
+
+        // Create tables and insert data
+        db.run(`
+          CREATE TABLE users (id INTEGER, username TEXT, password TEXT, flag TEXT);
+          INSERT INTO users VALUES (1, 'admin', 'secret', 'CTF{login_bypass}');
+          INSERT INTO users VALUES (2, 'hidden', 'nope', 'CTF{hidden_user}');
+          INSERT INTO users VALUES (3, 'guest', 'flag', 'CTF{boolean_flag}');
+
+          CREATE TABLE items (id INTEGER, name TEXT);
+          INSERT INTO items VALUES (1, 'Book');
+          INSERT INTO items VALUES (2, 'Pen');
+
+          CREATE TABLE flags (id INTEGER, flag TEXT);
+          INSERT INTO flags VALUES (1, 'CTF{union_flag}');
+          INSERT INTO flags VALUES (2, 'CTF{table_flag}');
+        `);
+      } catch (e) {
+        console.error('Database initialization error:', e);
+      }
+    }
+
+    // Challenge 1: Basic Login Bypass
+    function tryLoginBypass() {
+      const username = document.getElementById('login-user').value.replace(/'/g, "''"); // Escape single quotes
+      const password = document.getElementById('login-pass').value.replace(/'/g, "''");
+      // Simulate vulnerable query by bypassing escaping for demo
+      const rawQuery = `SELECT flag FROM users WHERE username='${document.getElementById('login-user').value}' AND password='${document.getElementById('login-pass').value}'`;
+      try {
+        const result = db.exec(rawQuery);
+        if (result.length > 0 && result[0].values.length > 0) {
+          document.getElementById('login-result').textContent = `Login successful! Flag: ${result[0].values[0][0]}`;
+        } else {
+          document.getElementById('login-result').textContent = 'Login failed!';
+        }
+      } catch (e) {
+        document.getElementById('login-result').textContent = `Query error: ${e.message}`;
+      }
+    }
+
+    // Challenge 2: Extract Hidden User
+    function tryHiddenUser() {
+      const id = document.getElementById('hidden-user-input').value;
+      const query = `SELECT username, flag FROM users WHERE id=${id}`;
+      try {
+        const result = db.exec(query);
+        if (result.length > 0 && result[0].values.length > 0) {
+          document.getElementById('hidden-result').textContent = `Found: Username=${result[0].values[0][0]}, Flag=${result[0].values[0][1]}`;
+        } else {
+          document.getElementById('hidden-result').textContent = 'No results found!';
+        }
+      } catch (e) {
+        document.getElementById('hidden-result').textContent = `Query error: ${e.message}`;
+      }
+    }
+
+    // Challenge 3: Union-Based Injection
+    function tryUnionInjection() {
+      const id = document.getElementById('union-input').value;
+      const query = `SELECT name FROM items WHERE id=${id}`;
+      try {
+        const result = db.exec(query);
+        if (result.length > 0 && result[0].values.length > 0) {
+          document.getElementById('union-result').textContent = `Found: ${result[0].values.map(row => row[0]).join(', ')}`;
+        } else {
+          document.getElementById('union-result').textContent = 'No results found!';
+        }
+      } catch (e) {
+        document.getElementById('union-result').textContent = `Query error: ${e.message}`;
+      }
+    }
+
+    // Challenge 4: Boolean-Based Injection
+    function tryBooleanInjection() {
+      const username = document.getElementById('bool-user').value.replace(/'/g, "''");
+      const password = document.getElementById('bool-pass').value.replace(/'/g, "''");
+      // Simulate vulnerable query
+      const rawQuery = `SELECT flag FROM users WHERE username='${document.getElementById('bool-user').value}' AND password='${document.getElementById('bool-pass').value}'`;
+      try {
+        const result = db.exec(rawQuery);
+        if (result.length > 0 && result[0].values.length > 0) {
+          document.getElementById('bool-result').textContent = `Login successful! Flag: ${result[0].values[0][0]}`;
+        } else {
+          document.getElementById('bool-result').textContent = 'Login failed!';
+        }
+      } catch (e) {
+        document.getElementById('bool-result').textContent = `Query error: ${e.message}`;
+      }
+    }
+
+    // Challenge 5: Table Name Discovery
+    function tryTableDiscovery() {
+      const table = document.getElementById('table-input').value.replace(/[^a-zA-Z0-9_]/g, ''); // Sanitize table name
+      const query = `SELECT flag FROM ${table} WHERE id=1`;
+      try {
+        const result = db.exec(query);
+        if (result.length > 0 && result[0].values.length > 0) {
+          document.getElementById('table-result').textContent = `Found: ${result[0].values[0][0]}`;
+        } else {
+          document.getElementById('table-result').textContent = 'No results found!';
+        }
+      } catch (e) {
+        document.getElementById('table-result').textContent = `Query error: ${e.message}`;
+      }
+    }
+
+    function checkFlag(inputId, correctFlag, feedbackId) {
+      const input = document.getElementById(inputId).value.trim();
+      const feedback = document.getElementById(feedbackId);
+      if (input === correctFlag) {
+        feedback.textContent = "Correct! Flag accepted.";
+        feedback.classList.add("text-green-600");
+        feedback.classList.remove("text-red-600");
+        if (!foundFlags.has(correctFlag)) {
+          foundFlags.add(correctFlag);
+          flagsFound++;
+          document.getElementById("progress").textContent = `Flags found: ${flagsFound}/5`;
+        }
+      } else {
+        feedback.textContent = "Incorrect flag. Try again!";
+        feedback.classList.add("text-red-600");
+        feedback.classList.remove("text-green-600");
+      }
+    }
+
+    // Initialize database on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      initDatabase().catch(e => console.error('Initialization failed:', e));
+      const lessons = document.querySelectorAll('#lessons > div');
+      lessons.forEach(lesson => {
+        lesson.style.display = 'block';
+        lesson.style.visibility = 'visible';
+      });
+    });
+  </script>
+</body>
+</html>

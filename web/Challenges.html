@@ -1,0 +1,158 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CTF Challenge Arena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-800">CTF Challenge Arena</h1>
+      <p class="text-lg text-gray-600 mt-2">Test your Capture The Flag skills with these challenges</p>
+    </header>
+
+    <section id="lessons" class="space-y-6">
+      <!-- Challenge 1: CSS Hidden Element -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">1. CSS Hidden Element</h2>
+        <p class="text-gray-700 mt-2">Some CTF flags are hidden using CSS. Check the page for anything that seems invisible.</p>
+        <div class="mt-4">
+          <p style="opacity: 0;">CTF{css_opacity}</p>
+        </div>
+        <p class="text-gray-700 mt-2">Try it: Can you find the hidden flag?</p>
+        <input id="css-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('css-input', 'CTF{css_opacity}', 'css-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="css-feedback" class="mt-2 text-gray-700"></p>
+      </div>
+
+      <!-- Challenge 2: ROT13 Decoding -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">2. ROT13 Decoding</h2>
+        <p class="text-gray-700 mt-2">ROT13 is a common CTF encoding. Decode this: <code class="bg-gray-100 p-1 rounded">PGU{ebbg13_pbqr}</code></p>
+        <p class="text-gray-700 mt-2">Try it: Can you decode the flag?</p>
+        <input id="rot13-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('rot13-input', 'CTF{root13_code}', 'rot13-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="rot13-feedback" class="mt-2 text-gray-700"></p>
+      </div>
+
+      <!-- Challenge 3: Image Metadata -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">3. Image Metadata</h2>
+        <p class="text-gray-700 mt-2">Flags can be hidden in image metadata. Inspect the image below to find a flag.</p>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/3E2kQAAAABJRU5ErkJggg==" alt="CTF{image_meta_flag}">
+        <p class="text-gray-700 mt-2">Try it: Can you find the flag in the image?</p>
+        <input id="meta-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('meta-input', 'CTF{image_meta_flag}', 'meta-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="meta-feedback" class="mt-2 text-gray-700"></p>
+      </div>
+
+      <!-- Challenge 4: JavaScript Function Parameter -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">4. JavaScript Function Parameter</h2>
+        <p class="text-gray-700 mt-2">Some flags require passing a specific value to a JavaScript function. Open the console (F12) and try: <code>getSecret('unlock')</code></p>
+        <p class="text-gray-700 mt-2">Try it: Can you get the flag from the function?</p>
+        <input id="func-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('func-input', 'CTF{func_param}', 'func-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="func-feedback" class="mt-2 text-gray-700"></p>
+      </div>
+
+      <!-- Challenge 5: Encoded URL Parameter -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">5. Encoded URL Parameter</h2>
+        <p class="text-gray-700 mt-2">Flags can be hidden in encoded URL parameters. Decode this: <code class="bg-gray-100 p-1 rounded">%43%54%46%7b%75%72%6c%5f%65%6e%63%6f%64%65%7d</code></p>
+        <p class="text-gray-700 mt-2">Try it: Can you decode the flag?</p>
+        <input id="urlenc-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('urlenc-input', 'CTF{url_encode}', 'urlenc-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="urlenc-feedback" class="mt-2 text-gray-700"></p>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
+      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/5</p>
+    </section>
+  </div>
+
+  <script>
+    let flagsFound = 0;
+    const foundFlags = new Set(); // Track unique flags to prevent double-counting
+
+    function getSecret(key) {
+      if (key === 'unlock') {
+        console.log('CTF{func_param}');
+        return 'CTF{func_param}';
+      }
+      return 'Wrong key!';
+    }
+
+    function checkFlag(inputId, correctFlag, feedbackId) {
+      const input = document.getElementById(inputId).value.trim();
+      const feedback = document.getElementById(feedbackId);
+      if (input === correctFlag) {
+        feedback.textContent = "Correct! Flag accepted.";
+        feedback.classList.add("text-green-600");
+        feedback.classList.remove("text-red-600");
+        if (!foundFlags.has(correctFlag)) {
+          foundFlags.add(correctFlag);
+          flagsFound++;
+          document.getElementById("progress").textContent = `Flags found: ${flagsFound}/5`;
+        }
+      } else {
+        feedback.textContent = "Incorrect flag. Try again!";
+        feedback.classList.add("text-red-600");
+        feedback.classList.remove("text-green-600");
+      }
+    }
+
+    // Ensure all challenges are visible on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const lessons = document.querySelectorAll('#lessons > div');
+      lessons.forEach(lesson => {
+        lesson.style.display = 'block';
+        lesson.style.visibility = 'visible';
+      });
+    });
+  </script>
+</body>
+</html>

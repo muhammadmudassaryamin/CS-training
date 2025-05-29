@@ -1,0 +1,161 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn Basic CTF Skills - Part 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-800">Learn Basic CTF Skills - Part 2</h1>
+      <p class="text-lg text-gray-600 mt-2">An interactive guide to beginner Capture The Flag challenges</p>
+    </header>
+
+    <section id="lessons" class="space-y-6">
+      <!-- Lesson 1: Hidden HTML Attributes -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">1. Hidden HTML Attributes</h2>
+        <p class="text-gray-700 mt-2">CTF flags can be hidden in HTML attributes. Inspect the button below to find a hidden flag.</p>
+        <button data-flag="CTF{hidden_attribute}" class="mt-2 bg-gray-300 px-4 py-2 rounded">Click Me</button>
+        <p class="text-gray-700 mt-2">Try it: Can you find the flag in the button's attributes?</p>
+        <input id="attr-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('attr-input', 'CTF{hidden_attribute}', 'attr-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="attr-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('attr-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="attr-hint" class="mt-2 text-gray-700 hidden">Right-click the "Click Me" button and select "Inspect." Look for a <code>data-flag</code> attribute in the HTML.</p>
+      </div>
+
+      <!-- Lesson 2: Substitution Cipher -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">2. Substitution Cipher</h2>
+        <p class="text-gray-700 mt-2">Substitution ciphers replace letters with others. Decode this: <code class="bg-gray-100 p-1 rounded">FURJUXGHUVKLIW</code></p>
+        <p class="text-gray-700 mt-2">Hint: Each letter is replaced by the next letter (A→B, B→C, ..., Z→A).</p>
+        <input id="sub-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('sub-input', 'CTF{simple_shift}', 'sub-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="sub-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('sub-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="sub-hint" class="mt-2 text-gray-700 hidden">Each letter in <code>FURJUXGHUVKLIW</code> is shifted forward by 1 (e.g., F→E, U→T). Shift each letter back by 1 to decode. Try an online tool or do it manually.</p>
+      </div>
+
+      <!-- Lesson 3: Fake Login Page -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">3. Fake Login Page</h2>
+        <p class="text-gray-700 mt-2">CTF challenges may hide flags in fake login pages. Inspect the form below to find a flag.</p>
+        <form class="mt-4">
+          <input type="text" placeholder="Username" class="p-2 border rounded">
+          <input type="password" placeholder="Password" class="mt-2 p-2 border rounded" value="CTF{fake_login}">
+        </form>
+        <p class="text-gray-700 mt-2">Try it: Can you find the flag in the login form?</p>
+        <input id="login-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('login-input', 'CTF{fake_login}', 'login-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="login-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('login-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="login-hint" class="mt-2 text-gray-700 hidden">Inspect the password field in the form using developer tools (F12). Check its <code>value</code> attribute for the flag.</p>
+      </div>
+
+      <!-- Lesson 4: JavaScript Variable -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">4. JavaScript Variable</h2>
+        <p class="text-gray-700 mt-2">Flags can be stored in JavaScript variables. Open the console (F12) and type: <code>secretFlag</code></p>
+        <input id="jsvar-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('jsvar-input', 'CTF{var_secret}', 'jsvar-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="jsvar-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('jsvar-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="jsvar-hint" class="mt-2 text-gray-700 hidden">Press F12, go to the Console tab, and type <code>secretFlag</code>. The variable’s value is the flag.</p>
+      </div>
+
+      <!-- Lesson 5: Morse Code -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">5. Morse Code</h2>
+        <p class="text-gray-700 mt-2">Morse code uses dots and dashes to encode letters. Decode this: <code class="bg-gray-100 p-1 rounded">-.-. - ..-. / -- --- .-. ... .</code></p>
+        <p class="text-gray-700 mt-2">Hint: Use a Morse code chart (e.g., .- = A, -... = B).</p>
+        <input id="morse-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('morse-input', 'CTF{morse}', 'morse-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="morse-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('morse-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="morse-hint" class="mt-2 text-gray-700 hidden">Use a Morse code chart: <code>-.-. - ..-.</code> is <code>CTF</code>, <code>-- --- .-. ... .</code> is <code>MORSE</code>. Combine them as <code>CTF{morse}</code>.</p>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
+      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/5</p>
+    </section>
+  </div>
+
+  <script>
+    let flagsFound = 0;
+    const foundFlags = new Set(); // Track unique flags to prevent double-counting
+    const secretFlag = "CTF{var_secret}"; // For Lesson 4
+
+    function checkFlag(inputId, correctFlag, feedbackId) {
+      const input = document.getElementById(inputId).value.trim();
+      const feedback = document.getElementById(feedbackId);
+      if (input === correctFlag) {
+        feedback.textContent = "Correct! Flag accepted.";
+        feedback.classList.add("text-green-600");
+        feedback.classList.remove("text-red-600");
+        if (!foundFlags.has(correctFlag)) {
+          foundFlags.add(correctFlag);
+          flagsFound++;
+          document.getElementById("progress").textContent = `Flags found: ${flagsFound}/5`;
+        }
+      } else {
+        feedback.textContent = "Incorrect flag. Try again!";
+        feedback.classList.add("text-red-600");
+        feedback.classList.remove("text-green-600");
+      }
+    }
+
+    // Ensure all challenges are visible on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const lessons = document.querySelectorAll('#lessons > div');
+      lessons.forEach(lesson => {
+        lesson.style.display = 'block';
+        lesson.style.visibility = 'visible';
+      });
+    });
+  </script>
+</body>
+</html>

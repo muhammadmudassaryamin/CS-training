@@ -1,0 +1,164 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn CTF Basics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-800">Learn Basic CTF Skills</h1>
+      <p class="text-lg text-gray-600 mt-2">An interactive guide to Capture The Flag challenges</p>
+    </header>
+
+    <section id="lessons" class="space-y-6">
+      <!-- Lesson 1: Inspecting Elements -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">1. Inspecting Elements</h2>
+        <p class="text-gray-700 mt-2">CTF challenges often hide flags in the HTML source code. Right-click and select "Inspect" to view the developer tools.</p>
+        <p class="text-gray-700 mt-2">Try it: There's a hidden flag in this page's source code. Can you find it?</p>
+        <!-- Hidden comment with flag -->
+        <!-- FLAG: CTF{inspect_the_source} -->
+        <input id="inspect-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('inspect-input', 'CTF{inspect_the_source}', 'inspect-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="inspect-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('inspect-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="inspect-hint" class="mt-2 text-gray-700 hidden">Right-click anywhere on this page and select "View Page Source" or "Inspect." Look for HTML comments (they start with <code>&lt;!--</code>). The flag is hidden in one of them.</p>
+      </div>
+
+      <!-- Lesson 2: Hidden Text -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">2. Hidden Text</h2>
+        <p class="text-gray-700 mt-2">Sometimes, flags are hidden in plain sight with invisible text. Try highlighting the area below or inspect the element.</p>
+        <div class="mt-4 p-4 bg-gray-200 rounded">
+          <span class="invisible">FLAG: CTF{hidden_in_plain_sight}</span>
+        </div>
+        <input id="hidden-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('hidden-input', 'CTF{hidden_in_plain_sight}', 'hidden-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="hidden-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('hidden-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hidden-hint" class="mt-2 text-gray-700 hidden">Click and drag your mouse over the gray box to highlight any hidden text. Alternatively, inspect the gray box in developer tools to see the <code>&lt;span&gt;</code> element's content.</p>
+      </div>
+
+      <!-- Lesson 3: Base64 Decoding -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">3. Base64 Decoding</h2>
+        <p class="text-gray-700 mt-2">Base64 is a common encoding in CTF. Decode this: <code class="bg-gray-100 p-1 rounded">Q1RGe2Jhc2U2NF9kZWNvZGV9</code></p>
+        <p class="text-gray-700 mt-2">Hint: Use an online Base64 decoder or JavaScript's <code>atob()</code> function in the console.</p>
+        <input id="base64-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('base64-input', 'CTF{base64_decode}', 'base64-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="base64-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('base64-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="base64-hint" class="mt-2 text-gray-700 hidden">Use an online Base64 decoder or open the console (F12) and type <code>atob('Q1RGe2Jhc2U2NF9kZWNvZGV9')</code>. The flag starts with <code>CTF{</code> and ends with <code>}</code>.</p>
+      </div>
+
+      <!-- Lesson 4: JavaScript Console -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">4. JavaScript Console</h2>
+        <p class="text-gray-700 mt-2">Some flags require executing JavaScript. Open the console (F12) and type: <code>getFlag()</code></p>
+        <input id="js-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('js-input', 'CTF{console_trick}', 'js-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="js-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('js-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="js-hint" class="mt-2 text-gray-700 hidden">Press F12 to open developer tools, go to the "Console" tab, and type <code>getFlag()</code> exactly as shown (include the parentheses). The function will log the flag to the console.</p>
+      </div>
+
+      <!-- Lesson 5: Caesar Cipher -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">5. Caesar Cipher</h2>
+        <p class="text-gray-700 mt-2">Caesar ciphers shift letters. Decode this (shift 3): <code class="bg-gray-100 p-1 rounded">AWAFZTWKBPQXEBKXOB</code></p>
+        <p class="text-gray-700 mt-2">Hint: Each letter is shifted forward by 3. A→D, B→E, etc. Try an online decoder or write a script.</p>
+        <input id="cipher-input" type="text" placeholder="Enter the flag" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('cipher-input', 'CTF{shifted_text}', 'cipher-feedback')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="cipher-feedback" class="mt-2 text-gray-700"></p>
+        <button onclick="document.getElementById('cipher-hint').classList.toggle('hidden')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="cipher-hint" class="mt-2 text-gray-700 hidden">Each letter in the code is shifted forward by 3 (e.g., A→D, B→E). Shift each letter back by 3 to decode. For example, A in the code becomes X. Use an online Caesar cipher tool or write a script to automate it.</p>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
+      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/5</p>
+    </section>
+  </div>
+
+  <script>
+    let flagsFound = 0;
+    const foundFlags = new Set(); // Track unique flags to prevent double-counting
+
+    function getFlag() {
+      console.log("FLAG: CTF{console_trick}");
+      return "CTF{console_trick}";
+    }
+
+    function checkFlag(inputId, correctFlag, feedbackId) {
+      const input = document.getElementById(inputId).value.trim();
+      const feedback = document.getElementById(feedbackId);
+      if (input === correctFlag) {
+        feedback.textContent = "Correct! Flag accepted.";
+        feedback.classList.add("text-green-600");
+        feedback.classList.remove("text-red-600");
+        if (!foundFlags.has(correctFlag)) {
+          foundFlags.add(correctFlag);
+          flagsFound++;
+          document.getElementById("progress").textContent = `Flags found: ${flagsFound}/5`;
+        }
+      } else {
+        feedback.textContent = "Incorrect flag. Try again!";
+        feedback.classList.add("text-red-600");
+        feedback.classList.remove("text-green-600");
+      }
+    }
+
+    // Ensure all challenges are visible on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const lessons = document.querySelectorAll('#lessons > div');
+      lessons.forEach(lesson => {
+        lesson.style.display = 'block';
+        lesson.style.visibility = 'visible';
+      });
+    });
+  </script>
+</body>
+</html>
