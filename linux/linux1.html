@@ -1,0 +1,783 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Linux for CTF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" rel="stylesheet" />
+    <style>
+        #terminal { height: 400px; width: 100%; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 max-w-5xl">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-800">Learn Linux for CTF</h1>
+      <p class="text-lg text-gray-600 mt-2">Master Linux commands for CTF challenges in a client-side terminal</p>
+      <p class="text-gray-600 mt-2">Type commands in the terminal to find flags. Enter flags below to track progress.</p>
+    </header>
+
+    <!-- Terminal -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold text-blue-700 mb-2">Linux Terminal</h2>
+      <div id="terminal" class="border rounded-lg shadow-md"></div>
+    </section>
+
+    <section id="lessons" class="space-y-6">
+      <!-- Challenge 1: whoami -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">1. Who Am I?</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">whoami</code> command shows your current user, useful for CTF enumeration.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">whoami</code>. Look for <code class="bg-gray-200 p-1">CTF{whoami}</code>.</p>
+        <input id="flag1" type="text" placeholder="Enter the flag (e.g., CTF{whoami})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag1', 'CTF{whoami}', 'feedback1')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback1" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint1')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint1" class="mt-2 text-gray-700 hidden">Type <code class="bg-gray-200 p-1">whoami</code> and check the output.</p>
+      </div>
+
+      <!-- Challenge 2: ls -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">2. List Directory</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">ls</code> command lists files, key for finding hidden CTF flags.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">ls -la /home/user</code> to find <code class="bg-gray-200 p-1">.flag2</code>. The flag is <code class="bg-gray-200 p-1">CTF{xls}</code>.</p>
+        <input id="flag2" type="text" placeholder="Enter the flag (e.g., CTF{xls})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag2', 'CTF{xls}', 'feedback2')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback2" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint2')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint2" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">ls -la</code> to show hidden files.</p>
+      </div>
+
+      <!-- Challenge 3: cat -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">3. Read a File</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">cat</code> command displays file contents, often used for CTF flags.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">cat /home/user/.flag</code> to find <code class="bg-gray-200 p-1">CTF{xcat}</code>.</p>
+        <input id="flag3" type="text" placeholder="Enter the flag (e.g., CTF{xcat})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag3', 'CTF{xcat}', 'feedback3')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback3" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint3')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint3" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">cat</code> to read <code class="bg-gray-200 p-1">/home/user/.flag</code>.</p>
+      </div>
+
+      <!-- Challenge 4: grep -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">4. Search in Files</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">grep</code> command searches files, perfect for finding CTF flags.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">grep 'CTF' /etc/config</code> to find <code class="bg-gray-200 p-1">CTF{xgrep}</code>.</p>
+        <input id="flag4" type="text" placeholder="Enter the flag (e.g., CTF{xgrep})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag4', 'CTF{xgrep}', 'feedback4')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback4" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint4')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint4" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">grep 'CTF'</code> to search <code class="bg-gray-200 p-1">/etc/config</code>.</p>
+      </div>
+
+      <!-- Challenge 5: find -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">5. Locate Files</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">find</code> command locates files, useful for hidden CTF flags.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">find /home -name '*flag*'</code> to find <code class="bg-gray-200 p-1">/home/user/secret/flag.txt</code>. Use <code class="bg-gray-200 p-1">cat</code> to read it for <code class="bg-gray-200 p-1">CTF{xfind}</code>.</p>
+        <input id="flag5" type="text" placeholder="Enter the flag (e.g., CTF{xfind})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag5', 'CTF{xfind}', 'feedback5')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback5" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint5')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint5" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">find /home -name '*flag*'</code>, then <code class="bg-gray-200 p-1">cat</code> the file.</p>
+      </div>
+
+      <!-- Challenge 6: pwd -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">6. Current Directory</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">pwd</code> command shows the current directory, helpful for navigation.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">pwd</code> to find <code class="bg-gray-200 p-1">CTF{pwd}</code>.</p>
+        <input id="flag6" type="text" placeholder="Enter the flag (e.g., CTF{pwd})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag6', 'CTF{pwd}', 'feedback6')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback6" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint6')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint6" class="mt-2 text-gray-700 hidden">Type <code class="bg-gray-200 p-1">pwd</code> to see the current path.</p>
+      </div>
+
+      <!-- Challenge 7: mkdir -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">7. Create Directory</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">mkdir</code> command creates directories, useful for organizing files.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">mkdir /home/user/tmp/newdir</code>. Check with <code class="bg-gray-200 p-1">ls /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{mkdir}</code>.</p>
+        <input id="flag7" type="text" placeholder="Enter the flag (e.g., CTF{mkdir})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag7', 'CTF{mkdir}', 'feedback7')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback7" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint7')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint7" class="mt-2 text-gray-700 hidden">Create the directory, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 8: touch -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">8. Create File</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">touch</code> command creates empty files, often used in CTFs.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">touch /home/user/tmp/flagfile</code>. Check with <code class="bg-gray-200 p-1">ls /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{touch}</code>.</p>
+        <input id="flag8" type="text" placeholder="Enter the flag (e.g., CTF{touch})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag8', 'CTF{touch}', 'feedback8')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback8" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint8')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint8" class="mt-2 text-gray-700 hidden">Create the file, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 9: rm -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">9. Remove File</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">rm</code> command deletes files, useful for cleanup in CTFs.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">rm /home/user/tmp/delete.me</code>. Check with <code class="bg-gray-200 p-1">ls /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{rm}</code>.</p>
+        <input id="flag9" type="text" placeholder="Enter the flag (e.g., CTF{rm})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag9', 'CTF{rm}', 'feedback9')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback9" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint9')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint9" class="mt-2 text-gray-700 hidden">Remove the file, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 10: cp -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">10. Copy File</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">cp</code> command copies files, useful for backups in CTFs.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">cp /home/user/flag.txt /home/user/tmp/flag.copy</code>. Check with <code class="bg-gray-200 p-1">ls /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{cp}</code>.</p>
+        <input id="flag10" type="text" placeholder="Enter the flag (e.g., CTF{cp})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag10', 'CTF{cp}', 'feedback10')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback10" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint10')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint10" class="mt-2 text-gray-700 hidden">Copy the file, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 11: mv -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">11. Move File</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">mv</code> command moves or renames files, key for file manipulation.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">mv /home/user/tmp/move.me /home/user/tmp/moved.flag</code>. Check with <code class="bg-gray-200 p-1">ls /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{mv}</code>.</p>
+        <input id="flag11" type="text" placeholder="Enter the flag (e.g., CTF{mv})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag11', 'CTF{mv}', 'feedback11')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback11" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint11')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint11" class="mt-2 text-gray-700 hidden">Move the file, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 12: chmod -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">12. Change Permissions</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">chmod</code> command changes file permissions, critical for privilege escalation.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">chmod 755 /home/user/tmp/secret.sh</code>. Check with <code class="bg-gray-200 p-1">ls -l /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{chmod}</code>.</p>
+        <input id="flag12" type="text" placeholder="Enter the flag (e.g., CTF{chmod})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag12', 'CTF{chmod}', 'feedback12')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback12" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint12')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint12" class="mt-2 text-gray-700 hidden">Change permissions, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 13: chown -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">13. Change Owner</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">chown</code> command changes file ownership, key for access control.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">chown user /home/user/tmp/owned.txt</code>. Check with <code class="bg-gray-200 p-1">ls -l /home/user/tmp</code> to find <code class="bg-gray-200 p-1">CTF{chown}</code>.</p>
+        <input id="flag13" type="text" placeholder="Enter the flag (e.g., CTF{chown})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag13', 'CTF{chown}', 'feedback13')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback13" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint13')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint13" class="mt-2 text-gray-700 hidden">Change ownership, then list <code class="bg-gray-200 p-1">/home/user/tmp</code>.</p>
+      </div>
+
+      <!-- Challenge 14: ps -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">14. List Processes</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">ps</code> command lists running processes, useful for system enumeration.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">ps</code> to find <code class="bg-gray-200 p-1">CTF{ps}</code>.</p>
+        <input id="flag14" type="text" placeholder="Enter the flag (e.g., CTF{ps})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag14', 'CTF{ps}', 'feedback14')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback14" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint14')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint14" class="mt-2 text-gray-700 hidden">Type <code class="bg-gray-200 p-1">ps</code> to list processes.</p>
+      </div>
+
+      <!-- Challenge 15: head -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">15. View File Start</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">head</code> command shows the first lines of a file, useful for quick inspection.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">head /var/log/app.log</code> to find <code class="bg-gray-200 p-1">CTF{head}</code>.</p>
+        <input id="flag15" type="text" placeholder="Enter the flag (e.g., CTF{head})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag15', 'CTF{head}', 'feedback15')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback15" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint15')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint15" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">head</code> on <code class="bg-gray-200 p-1">/var/log/app.log</code>.</p>
+      </div>
+
+      <!-- Challenge 16: tail -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">16. View File End</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">tail</code> command shows the last lines of a file, great for logs.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">tail /var/log/app.log</code> to find <code class="bg-gray-200 p-1">CTF{tail}</code>.</p>
+        <input id="flag16" type="text" placeholder="Enter the flag (e.g., CTF{tail})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag16', 'CTF{tail}', 'feedback16')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback16" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint16')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint16" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">tail</code> on <code class="bg-gray-200 p-1">/var/log/app.log</code>.</p>
+      </div>
+
+      <!-- Challenge 17: wc -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">17. Count Lines</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">wc</code> command counts lines, words, or characters, useful for analysis.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">wc -l /var/log/app.log</code> to find <code class="bg-gray-200 p-1">CTF{wc}</code>.</p>
+        <input id="flag17" type="text" placeholder="Enter the flag (e.g., CTF{wc})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag17', 'CTF{wc}', 'feedback17')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback17" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint17')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint17" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">wc -l</code> on <code class="bg-gray-200 p-1">/var/log/app.log</code>.</p>
+      </div>
+
+      <!-- Challenge 18: sort -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">18. Sort Lines</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">sort</code> command sorts file lines, useful for data organization.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">sort /home/user/data.txt</code> to find <code class="bg-gray-200 p-1">CTF{sort}</code>.</p>
+        <input id="flag18" type="text" placeholder="Enter the flag (e.g., CTF{sort})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag18', 'CTF{sort}', 'feedback18')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback18" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint18')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint18" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">sort</code> on <code class="bg-gray-200 p-1">/home/user/data.txt</code>.</p>
+      </div>
+
+      <!-- Challenge 19: strings -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">19. Extract Strings</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">strings</code> command extracts readable strings from files, key for binary analysis.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">strings /bin/app</code> to find <code class="bg-gray-200 p-1">CTF{strings}</code>.</p>
+        <input id="flag19" type="text" placeholder="Enter the flag (e.g., CTF{strings})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag19', 'CTF{strings}', 'feedback19')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback19" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint19')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint19" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">strings</code> on <code class="bg-gray-200 p-1">/bin/app</code>.</p>
+      </div>
+
+      <!-- Challenge 20: base64 -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">20. Decode Base64</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">base64</code> command decodes base64-encoded data, common in CTFs.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">base64 -d /home/user/encoded.txt</code> to find <code class="bg-gray-200 p-1">CTF{base64}</code>.</p>
+        <input id="flag20" type="text" placeholder="Enter the flag (e.g., CTF{base64})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag20', 'CTF{base64}', 'feedback20')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback20" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint20')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint20" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">base64 -d</code> on <code class="bg-gray-200 p-1">/home/user/encoded.txt</code>.</p>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
+      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/20</p>
+    </section>
+  </div>
+
+  <script type="text/javascript">
+    let flagsFound = 0;
+    const foundFlags = new Set();
+
+    // Virtual Filesystem with Permissions
+    const filesystem = {
+      'home': {
+        'user': {
+          '.flag': { content: 'CTF{xcat}', perms: 'rw-r--r--', owner: 'user' },
+          '.flag2': { content: 'CTF{xls}', perms: 'rw-r--r--', owner: 'user' },
+          'readme.txt': { content: 'Welcome to the CTF!', perms: 'rw-r--r--', owner: 'user' },
+          'flag.txt': { content: 'Not the flag you need', perms: 'rw-r--r--', owner: 'user' },
+          'data.txt': { content: 'line2\nline1\nCTF{sort}\nline3', perms: 'rw-r--r--', owner: 'user' },
+          'encoded.txt': { content: btoa('CTF{base64}'), perms: 'rw-r--r--', owner: 'user' },
+          'secret': {
+            'flag.txt': { content: 'CTF{xfind}', perms: 'rw-r--r--', owner: 'user' }
+          },
+          'tmp': {
+            'delete.me': { content: 'Delete this', perms: 'rw-r--r--', owner: 'user' },
+            'move.me': { content: 'Move this', perms: 'rw-r--r--', owner: 'user' },
+            'secret.sh': { content: '#!/bin/sh', perms: 'rwxr-xr-x', owner: 'user' },
+            'owned.txt': { content: 'Change owner', perms: 'rw-r--r--', owner: 'root' }
+          }
+        }
+      },
+      'etc': {
+        'config': { content: 'System settings\nCTF{xgrep}\nDebug mode: off', perms: 'rw-r--r--', owner: 'root' }
+      },
+      'var': {
+        'log': {
+          'app.log': { content: 'CTF{head}\nLog entry 1\nLog entry 2\n...\nLog entry 9\nCTF{tail}', perms: 'rw-r--r--', owner: 'root' }
+        }
+      },
+      'bin': {
+        'app': { content: '\x00\x01CTF{strings}\x02\x03', perms: 'rwxr-xr-x', owner: 'root' }
+      }
+    };
+
+    // Simulated Process Table
+    const processes = [
+      { pid: 1, cmd: 'init', flag: 'CTF{ps}' },
+      { pid: 123, cmd: 'bash' },
+      { pid: 456, cmd: 'app' }
+    ];
+
+    // Terminal Setup
+    const term = new Terminal();
+    term.open(document.getElementById('terminal'));
+    let currentPath = '/home/user';
+    let commandBuffer = '';
+
+    term.write('user@ctf:' + currentPath + '$ ');
+    term.onData(e => {
+      if (e === '\r') {
+        term.write('\r\n');
+        processCommand(commandBuffer.trim());
+        commandBuffer = '';
+        term.write('user@ctf:' + currentPath + '$ ');
+      } else if (e === '\b') {
+        if (commandBuffer.length > 0) {
+          commandBuffer = commandBuffer.slice(0, -1);
+          term.write('\b \b');
+        }
+      } else {
+        commandBuffer += e;
+        term.write(e);
+      }
+    });
+
+    function normalizePath(path) {
+      path = path.replace(/^\/+|\/+$/g, '');
+      if (!path) return [];
+      return path.split('/').filter(p => p);
+    }
+
+    function resolvePath(path) {
+      if (!path || path === '.') return currentPath;
+      let base = path.startsWith('/') ? '' : currentPath.replace(/^\/+|\/+$/g, '');
+      let parts = normalizePath(base + '/' + path.replace(/^\/+|\/+$/g, ''));
+      let resolved = [];
+      for (let part of parts) {
+        if (part === '..') {
+          resolved.pop();
+        } else if (part !== '.') {
+          resolved.push(part);
+        }
+      }
+      return '/' + resolved.join('/');
+    }
+
+    function getNode(path) {
+      const parts = normalizePath(path);
+      let node = filesystem;
+      for (let part of parts) {
+        node = node[part];
+        if (!node) return null;
+      }
+      return node.content !== undefined ? node : node;
+    }
+
+    function setNode(path, value) {
+      const parts = normalizePath(path);
+      if (!parts.length) return false;
+      let node = filesystem;
+      for (let i = 0; i < parts.length - 1; i++) {
+        node = node[parts[i]];
+        if (!node || typeof node !== 'object') return false;
+      }
+      node[parts[parts.length - 1]] = value;
+      return true;
+    }
+
+    function deleteNode(path) {
+      const parts = normalizePath(path);
+      if (!parts.length) return false;
+      let node = filesystem;
+      for (let i = 0; i < parts.length - 1; i++) {
+        node = node[parts[i]];
+        if (!node || typeof node !== 'object') return false;
+      }
+      return delete node[parts[parts.length - 1]];
+    }
+
+    function processCommand(cmd) {
+      if (!cmd) return;
+      const [command, ...args] = cmd.split(/\s+/).filter(x => x);
+      switch (command) {
+        case 'whoami':
+          term.write('user\nCTF{whoami}\n');
+          break;
+        case 'pwd':
+          term.write(`${currentPath}\nCTF{pwd}\n`);
+          break;
+        case 'ls':
+          const lsPath = resolvePath(args.includes('-la') || args.includes('-l') ? args.filter(a => !a.startsWith('-'))[0] || '.' : args[0] || '.');
+          const dir = getNode(lsPath);
+          if (dir && typeof dir === 'object') {
+            const files = Object.keys(dir);
+            if (args.includes('-la') || args.includes('-l')) {
+              term.write(files.map(f => {
+                const node = dir[f];
+                return `${node.perms || 'drwxr-xr-x'} ${node.owner || 'user'} ${f}`;
+              }).join('\n') + '\n');
+            } else {
+              term.write(files.filter(f => !f.startsWith('.')).join('\n') + '\n');
+            }
+          } else {
+            term.write('ls: no such directory\n');
+          }
+          break;
+        case 'cat':
+          if (args.length === 0) {
+            term.write('cat: missing file\n');
+            return;
+          }
+          const filePath = resolvePath(args[0]);
+          const file = getNode(filePath);
+          if (file && typeof file.content === 'string') {
+            term.write(file.content + '\n');
+          } else {
+            term.write('cat: no such file\n');
+          }
+          break;
+        case 'grep':
+          if (args.length < 2) {
+            term.write('grep: usage: grep pattern file\n');
+            return;
+          }
+          const grepPattern = args[0].replace(/^'|'$/g, '');
+          const grepFilePath = resolvePath(args[1]);
+          const grepFile = getNode(grepFilePath);
+          if (grepFile && typeof grepFile.content === 'string') {
+            const lines = grepFile.content.split('\n').filter(line => line.includes(grepPattern));
+            term.write(lines.join('\n') + '\n');
+          } else {
+            term.write('grep: no such file\n');
+          }
+          break;
+        case 'find':
+          if (args.length < 3 || args[1] !== '-name') {
+            term.write('find: usage: find path -name pattern\n');
+            return;
+          }
+          const findPath = resolvePath(args[0]);
+          const findPattern = args[2].replace(/^'|'$/g, '').replace(/[*]/g, '.*');
+          const regex = new RegExp(`^${findPattern}$`);
+          let results = [];
+          function searchDir(dir, path) {
+            for (let key in dir) {
+              const fullPath = path + (path.endsWith('/') ? '' : '/') + key;
+              if (regex.test(key)) results.push(fullPath);
+              if (typeof dir[key] === 'object' && !dir[key].content) searchDir(dir[key], fullPath);
+            }
+          }
+          const startDir = getNode(findPath);
+          if (startDir && typeof startDir === 'object') {
+            searchDir(startDir, findPath);
+            term.write(results.join('\n') + '\n');
+          } else {
+            term.write('find: no such directory\n');
+          }
+          break;
+        case 'cd':
+          const newPath = args.length ? resolvePath(args[0]) : '/home/user';
+          if (getNode(newPath) && typeof getNode(newPath) === 'object') {
+            currentPath = newPath;
+          } else {
+            term.write('cd: no such directory\n');
+          }
+          break;
+        case 'mkdir':
+          if (args.length === 0) {
+            term.write('mkdir: missing directory\n');
+            return;
+          }
+          const dirPath = resolvePath(args[0]);
+          if (dirPath.startsWith('/home/user/tmp')) {
+            if (getNode(dirPath)) {
+              term.write('mkdir: directory exists\n');
+            } else {
+              setNode(dirPath, { perms: 'drwxr-xr-x', owner: 'user' });
+              term.write(`CTF{mkdir}\n`);
+            }
+          } else {
+            term.write('mkdir: permission denied\n');
+          }
+          break;
+        case 'touch':
+          if (args.length === 0) {
+            term.write('touch: missing file\n');
+            return;
+          }
+          const touchPath = resolvePath(args[0]);
+          if (touchPath.startsWith('/home/user/tmp')) {
+            if (getNode(touchPath)) {
+              term.write('touch: file exists\n');
+            } else {
+              setNode(touchPath, { content: '', perms: 'rw-r--r--', owner: 'user' });
+              term.write(`CTF{touch}\n`);
+            }
+          } else {
+            term.write('touch: permission denied\n');
+          }
+          break;
+        case 'rm':
+          if (args.length === 0) {
+            term.write('rm: missing file\n');
+            return;
+          }
+          const rmPath = resolvePath(args[0]);
+          if (rmPath.startsWith('/home/user/tmp')) {
+            if (deleteNode(rmPath)) {
+              term.write(`CTF{rm}\n`);
+            } else {
+              term.write('rm: no such file\n');
+            }
+          } else {
+            term.write('rm: permission denied\n');
+          }
+          break;
+        case 'cp':
+          if (args.length < 2) {
+            term.write('cp: usage: cp source dest\n');
+            return;
+          }
+          const srcPath = resolvePath(args[0]);
+          const destPath = resolvePath(args[1]);
+          if (destPath.startsWith('/home/user/tmp')) {
+            const src = getNode(srcPath);
+            if (src && typeof src.content === 'string') {
+              setNode(destPath, { content: src.content, perms: src.perms, owner: src.owner });
+              term.write(`CTF{cp}\n`);
+            } else {
+              term.write('cp: no such file\n');
+            }
+          } else {
+            term.write('cp: permission denied\n');
+          }
+          break;
+        case 'mv':
+          if (args.length < 2) {
+            term.write('mv: usage: mv source dest\n');
+            return;
+          }
+          const mvSrcPath = resolvePath(args[0]);
+          const mvDestPath = resolvePath(args[1]);
+          if (mvDestPath.startsWith('/home/user/tmp')) {
+            const src = getNode(mvSrcPath);
+            if (src && typeof src.content === 'string') {
+              setNode(mvDestPath, { content: src.content, perms: src.perms, owner: src.owner });
+              deleteNode(mvSrcPath);
+              term.write(`CTF{mv}\n`);
+            } else {
+              term.write('mv: no such file\n');
+            }
+          } else {
+            term.write('mv: permission denied\n');
+          }
+          break;
+        case 'chmod':
+          if (args.length < 2) {
+            term.write('chmod: usage: chmod mode file\n');
+            return;
+          }
+          const mode = args[0];
+          const chmodPath = resolvePath(args[1]);
+          if (chmodPath.startsWith('/home/user/tmp')) {
+            const file = getNode(chmodPath);
+            if (file) {
+              file.perms = mode === '755' ? 'rwxr-xr-x' : file.perms;
+              term.write(`CTF{chmod}\n`);
+            } else {
+              term.write('chmod: no such file\n');
+            }
+          } else {
+            term.write('chmod: permission denied\n');
+          }
+          break;
+        case 'chown':
+          if (args.length < 2) {
+            term.write('chown: usage: chown user file\n');
+            return;
+          }
+          const owner = args[0];
+          const chownPath = resolvePath(args[1]);
+          if (chownPath.startsWith('/home/user/tmp')) {
+            const file = getNode(chownPath);
+            if (file) {
+              file.owner = owner;
+              term.write(`CTFowner}\n`);
+              term.write(`CTF{owner}\n`);
+            } else {
+              term.write('chown: no such file\n');
+            }
+          } else {
+            term.write('chown: permission denied\n');
+          }
+          break;
+        case 'ps':
+          term.write('PID  CMD\n' + processes.map(p => `${p.pid}  ${p.cmd}`).join('\n') + '\n');
+          term.write(`CTF{ps}\n`);
+          break;
+        case 'head':
+          if (args.length === 0) {
+            term.write('head: missing file\n');
+            return;
+          }
+          const headPath = resolvePath(args[0]);
+          const headFile = getNode(headPath);
+          if (headFile && typeof headFile.content === 'string') {
+            const lines = headFile.content.split('\n').slice(0, 10);
+            term.write(lines.join('\n') + '\n');
+          } else {
+            term.write('head: no such file\n');
+          }
+          break;
+        case 'tail':
+          if (args.length === 0) {
+            term.write('tail: missing file\n');
+            return;
+          }
+          const tailPath = resolvePath(args[0]);
+          const tailFile = getNode(tailPath);
+          if (tailFile && typeof tailFile.content === 'string') {
+            const lines = tailFile.content.split('\n').slice(-10);
+            term.write(lines.join('\n') + '\n');
+          } else {
+            term.write('tail: no such file\n');
+          }
+          break;
+        case 'wc':
+          if (args.length < 2 || args[0] !== '-l') {
+            term.write('Usage: wc -l file\n');
+            return;
+          }
+          const wcPath = resolvePath(args[1]);
+          const wcFile = getNode(wcPath);
+          if (wcFile && typeof wcFile.content === 'string') {
+            const lineCount = wcFile.content.split('\n').length;
+            term.write(`${lineCount} ${wcPath}\nCTF{wc}\n`);
+          } else {
+            term.write('wc: no such file\n');
+          }
+          break;
+        case 'sort':
+          if (args.length === 0) {
+            term.write('sort: missing file\n');
+            return;
+          }
+          const sortPath = resolvePath(args[0]);
+          const sortFile = getNode(sortPath);
+          if (sortFile && typeof sortFile.content === 'string') {
+            const lines = sortFile.content.split('\n').sort();
+            term.write(lines.join('\n') + '\n');
+          } else {
+            term.write('sort: no such file\n');
+          }
+          break;
+        case 'strings':
+          if (args.length === 0) {
+            term.write('strings: missing file\n');
+            return;
+          }
+          const stringsPath = resolvePath(args[0]);
+          const stringsFile = getNode(stringsPath);
+          if (stringsFile && typeof stringsFile.content === 'string') {
+            const printable = stringsFile.content.match(/[A-Za-z0-9{+}]+/g) || [];
+            term.write(printable.join('\n') + '\n');
+          } else {
+            term.write('strings: no such file\n');
+          }
+          break;
+        case 'base64':
+          if (args.length < 2 || args[0] !== '-d') {
+            term.write('Usage: base64 -d file\n');
+            return;
+          }
+          const base64Path = resolvePath(args[1]);
+          const base64File = getNode(base64Path);
+          if (base64File && typeof base64File.content === 'string') {
+            try {
+              term.write(atob(base64File.content) + '\n');
+            } catch {
+              term.write('base64: invalid input\n');
+            }
+          } else {
+            term.write('base64: no such file\n');
+          }
+          break;
+        default:
+          term.write(`${command}: command not found\n`);
+      }
+    }
+
+    function checkFlag(inputId, correctFlag) {
+      const input = document.getElementById(inputId).value.trim();
+      const feedbackId = 'feedback' + inputId.replace('flag', '');
+      const feedback = document.getElementById(feedbackId);
+      if (input === correctFlag) {
+        feedback.textContent = "Correct! Flag accepted.";
+        feedback.classList.add('text-green-600');
+        feedback.classList.remove('text-red-700');
+        if (!foundFlags.has(correctFlag)) {
+          foundFlags.add(correctFlag);
+          flagsFound++;
+          document.getElementById('progress').textContent = `Flags found: ${flagsFound}/20`;
+        }
+      } else {
+        feedback.textContent = "Incorrect flag. Try again!";
+        feedback.classList.add('text-red-700');
+        feedback.classList.remove('text-green-600');
+      }
+    }
+
+    function toggleHint(hintId) {
+      const hint = document.getElementById(hintId);
+      hint.classList.toggle('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const lessons = document.querySelectorAll('#lessons > div');
+      lessons.forEach(lesson => {
+        lesson.style.display = 'block';
+        lesson.style.visibility = 'visible';
+      });
+    });
+  </script>
+</body>
+</html>
