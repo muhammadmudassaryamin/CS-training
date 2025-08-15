@@ -1,0 +1,248 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn OSINT with Google Dorks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 max-w-4xl">
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-blue-800">Learn OSINT with Google Dorks</h1>
+      <p class="text-lg text-gray-600 mt-2">An interactive guide to Open Source Intelligence using Google advanced search operators</p>
+      <p class="text-gray-600 mt-2">Enter dorks in the search bar below to simulate Google searches and find flags. Submit flags to track progress.</p>
+    </header>
+
+    <!-- Simulated Google Search Bar -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold text-blue-700 mb-2">Google Dork Simulator</h2>
+      <input id="dork-input" type="text" placeholder="Enter Google Dork (e.g., site:example.com filetype:pdf)" class="p-2 border rounded w-full">
+      <button onclick="simulateSearch()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Search</button>
+      <p id="search-result" class="mt-2 text-gray-700"></p>
+    </section>
+
+    <section id="lessons" class="space-y-6">
+      <!-- Challenge 1: Basic Site Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">1. Basic Site Search</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">site:</code> operator limits search to a domain, useful for OSINT reconnaissance.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com</code> to find a flag in the results.</p>
+        <input id="flag1" type="text" placeholder="Enter the flag (e.g., CTF{site_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag1', 'CTF{site_dork}', 'feedback1')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback1" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint1')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint1" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">site:ctf.com</code> in the search bar and check the results for the flag.</p>
+      </div>
+
+      <!-- Challenge 2: Filetype Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">2. Filetype Search</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">filetype:</code> operator finds specific file types, great for sensitive documents.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com filetype:pdf</code> to find a flag.</p>
+        <input id="flag2" type="text" placeholder="Enter the flag (e.g., CTF{filetype_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag2', 'CTF{filetype_dork}', 'feedback2')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback2" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint2')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint2" class="mt-2 text-gray-700 hidden">Combine <code class="bg-gray-200 p-1">site:</code> with <code class="bg-gray-200 p-1">filetype:</code> to search for PDFs on the site.</p>
+      </div>
+
+      <!-- Challenge 3: Inurl Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">3. Inurl Search</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">inurl:</code> operator searches URLs for keywords, useful for finding vulnerable pages.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com inurl:admin</code> to find a flag.</p>
+        <input id="flag3" type="text" placeholder="Enter the flag (e.g., CTF{inurl_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag3', 'CTF{inurl_dork}', 'feedback3')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback3" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint3')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint3" class="mt-2 text-gray-700 hidden">Look for 'admin' in URLs on the site.</p>
+      </div>
+
+      <!-- Challenge 4: Intitle Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">4. Intitle Search</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">intitle:</code> operator searches page titles, helpful for specific content.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com intitle:login</code> to find a flag.</p>
+        <input id="flag4" type="text" placeholder="Enter the flag (e.g., CTF{intitle_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag4', 'CTF{intitle_dork}', 'feedback4')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback4" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint4')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint4" class="mt-2 text-gray-700 hidden">Search for pages with 'login' in the title.</p>
+      </div>
+
+      <!-- Challenge 5: Combined Dorks -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">5. Combined Dorks</h2>
+        <p class="text-gray-700 mt-2">Combine operators for powerful searches, like finding exposed directories.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com inurl:index of filetype:txt</code> to find a flag.</p>
+        <input id="flag5" type="text" placeholder="Enter the flag (e.g., CTF{combined_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag5', 'CTF{combined_dork}', 'feedback5')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback5" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint5')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint5" class="mt-2 text-gray-700 hidden">Combine <code class="bg-gray-200 p-1">site:</code>, <code class="bg-gray-200 p-1">inurl:</code>, and <code class="bg-gray-200 p-1">filetype:</code> to find exposed txt files.</p>
+      </div>
+
+      <!-- Challenge 6: Cache Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">6. Cache Search</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">cache:</code> operator shows Google's cached version of a page, useful for deleted content.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">cache:ctf.com/secret</code> to find a flag.</p>
+        <input id="flag6" type="text" placeholder="Enter the flag (e.g., CTF{cache_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag6', 'CTF{cache_dork}', 'feedback6')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback6" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint6')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint6" class="mt-2 text-gray-700 hidden">Use <code class="bg-gray-200 p-1">cache:</code> to view a cached page.</p>
+      </div>
+
+      <!-- Challenge 7: Intext Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">7. Intext Search</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">intext:</code> operator searches page text for keywords.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com intext:password</code> to find a flag.</p>
+        <input id="flag7" type="text" placeholder="Enter the flag (e.g., CTF{intext_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag7', 'CTF{intext_dork}', 'feedback7')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback7" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint7')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint7" class="mt-2 text-gray-700 hidden">Search for 'password' in page text on the site.</p>
+      </div>
+
+      <!-- Challenge 8: Related Sites -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">8. Related Sites</h2>
+        <p class="text-gray-700 mt-2">The <code class="bg-gray-200 p-1">related:</code> operator finds similar sites, useful for expanding OSINT scope.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">related:ctf.com</code> to find a flag.</p>
+        <input id="flag8" type="text" placeholder="Enter the flag (e.g., CTF{related_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag8', 'CTF{related_dork}', 'feedback8')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback8" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint8')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint8" class="mt-2 text-gray-700 hidden">Find sites related to <code class="bg-gray-200 p-1">ctf.com</code>.</p>
+      </div>
+
+      <!-- Challenge 9: Negative Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">9. Negative Search</h2>
+        <p class="text-gray-700 mt-2">Use <code class="bg-gray-200 p-1">-</code> to exclude terms, refining OSINT searches.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com password -login</code> to find a flag.</p>
+        <input id="flag9" type="text" placeholder="Enter the flag (e.g., CTF{negative_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag9', 'CTF{negative_dork}', 'feedback9')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback9" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint9')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint9" class="mt-2 text-gray-700 hidden">Exclude 'login' while searching for 'password' on the site.</p>
+      </div>
+
+      <!-- Challenge 10: Numeric Range Search -->
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-blue-700">10. Numeric Range Search</h2>
+        <p class="text-gray-700 mt-2">Use <code class="bg-gray-200 p-1">num1..num2</code> to search numeric ranges, useful for finding versions or IDs.</p>
+        <p class="text-gray-700 mt-2">Try it: Use <code class="bg-gray-200 p-1">site:ctf.com 2020..2025</code> to find a flag.</p>
+        <input id="flag10" type="text" placeholder="Enter the flag (e.g., CTF{range_dork})" class="mt-4 p-2 border rounded w-full">
+        <button onclick="checkFlag('flag10', 'CTF{range_dork}', 'feedback10')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
+        <p id="feedback10" class="mt-2 text-gray-700"></p>
+        <button onclick="toggleHint('hint10')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
+        <p id="hint10" class="mt-2 text-gray-700 hidden">Search for years 2020 to 2025 on the site.</p>
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
+      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/10</p>
+    </section>
+  </div>
+
+  <script>
+    let flagsFound = 0;
+    const foundFlags = new Set();
+
+    // Simulated Google Dork Results
+    const dorkResults = {
+      'site:ctf.com': 'Result: CTF site index. Flag: CTF{site_dork}',
+      'site:ctf.com filetype:pdf': 'Result: PDF files found. Flag: CTF{filetype_dork}',
+      'site:ctf.com inurl:admin': 'Result: Admin pages. Flag: CTF{inurl_dork}',
+      'site:ctf.com intitle:login': 'Result: Login pages. Flag: CTF{intitle_dork}',
+      'site:ctf.com inurl:index of filetype:txt': 'Result: Exposed directories. Flag: CTF{combined_dork}',
+      'cache:ctf.com/secret': 'Result: Cached secret page. Flag: CTF{cache_dork}',
+      'site:ctf.com intext:password': 'Result: Password mentions. Flag: CTF{intext_dork}',
+      'related:ctf.com': 'Result: Related sites. Flag: CTF{related_dork}',
+      'site:ctf.com password -login': 'Result: Password without login. Flag: CTF{negative_dork}',
+      'site:ctf.com 2020..2025': 'Result: Recent content. Flag: CTF{range_dork}'
+    };
+
+    function simulateSearch() {
+      const dork = document.getElementById('dork-input').value.trim().toLowerCase();
+      const result = dorkResults[dork] || 'No results found. Try a different dork.';
+      document.getElementById('search-result').textContent = result;
+    }
+
+    function checkFlag(inputId, correctFlag, feedbackId) {
+      const input = document.getElementById(inputId).value.trim();
+      const feedback = document.getElementById(feedbackId);
+      if (input === correctFlag) {
+        feedback.textContent = "Correct! Flag accepted.";
+        feedback.classList.add("text-green-600");
+        feedback.classList.remove("text-red-600");
+        if (!foundFlags.has(correctFlag)) {
+          foundFlags.add(correctFlag);
+          flagsFound++;
+          document.getElementById("progress").textContent = `Flags found: ${flagsFound}/10`;
+        }
+      } else {
+        feedback.textContent = "Incorrect flag. Try again!";
+        feedback.classList.add("text-red-600");
+        feedback.classList.remove("text-green-600");
+      }
+    }
+
+    function toggleHint(hintId) {
+      document.getElementById(hintId).classList.toggle('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const lessons = document.querySelectorAll('#lessons > div');
+      lessons.forEach(lesson => {
+        lesson.style.display = 'block';
+        lesson.style.visibility = 'visible';
+      });
+    });
+  </script>
+</body>
+</html>
