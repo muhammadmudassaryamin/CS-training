@@ -138,12 +138,12 @@
       <div class="bg-white p-6 rounded-lg shadow-md">
         <h2 class="text-2xl font-semibold text-blue-700">7. Port Scan (nmap)</h2>
         <p class="text-gray-700 mt-2">nmap scans ports for open services, crucial for vulnerability discovery.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">nmap -sV scan.ctf.com</code> to find the flag in the service details.</p>
+        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">nmap -s scan.ctf.com</code> to find the flag in the service details.</p>
         <input id="flag7" type="text" placeholder="Enter the flag (e.g., CTF{nmap})" class="mt-4 p-2 border rounded w-full">
         <button onclick="checkFlag('flag7', 'CTF{nmap}', 'feedback7')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
         <p id="feedback7" class="mt-2 text-gray-700"></p>
         <button onclick="toggleHint('hint7')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint7" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">nmap -sV scan.ctf.com</code> and look in the open ports.</p>
+        <p id="hint7" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">nmap -s scan.ctf.com</code> and look in the open ports.</p>
       </div>
 
       <!-- Challenge 8: Subdomain Enumeration (dnsdumpster) -->
@@ -201,7 +201,7 @@
       'nslookup 192.168.1.1': 'Server: 8.8.8.8\nAddress: 192.168.1.1\nName: gateway.ctf.com # CTF{reverse_dns}',
       'traceroute target.ctf.com': 'traceroute to target.ctf.com (192.168.1.200), 30 hops max\n1 192.168.1.1 (gateway) 1 ms\n2 192.168.1.200 (target.ctf.com) 2 ms # CTF{traceroute}',
       'ping -c 1 host.ctf.com': 'PING host.ctf.com (192.168.1.150): 56 data bytes\n64 bytes from 192.168.1.150: icmp_seq=0 ttl=64 time=1 ms\n--- host.ctf.com ping statistics ---\n1 packets transmitted, 1 received, 0% loss # CTF{ping}',
-      'nmap -sV scan.ctf.com': 'Nmap scan report for scan.ctf.com (192.168.1.250)\nHost is up (0.001s latency).\nPORT STATE SERVICE VERSION\n80/tcp open http Apache httpd 2.4.41 (CTF{nmap})',
+      'nmap -s scan.ctf.com': 'Nmap scan report for scan.ctf.com (192.168.1.250)\nHost is up (0.001s latency).\nPORT STATE SERVICE VERSION\n80/tcp open http Apache httpd 2.4.41 (CTF{nmap})',
       'dig axfr subdomain.ctf.com': '; <<>> DiG 9.10.6 <<>> axfr subdomain.ctf.com\n;; global options: +cmd\nsubdomain.ctf.com. 3600 IN SOA ns.ctf.com. admin.ctf.com. 1 3600 3600 3600 3600\nhidden.subdomain.ctf.com. 3600 IN A 192.168.1.300 # CTF{subdomain}',
       'nc -v banner.ctf.com 80': 'banner.ctf.com [192.168.1.400] 80 (http) open\nHTTP/1.1 200 OK\nServer: nginx/1.18.0 (CTF{banner})',
       'shodan search port:80 org:ctf': 'Search results:\nHost: 192.168.1.500\nPort: 80\nBanner: Apache 2.4.41\nFlag: CTF{shodan}'
