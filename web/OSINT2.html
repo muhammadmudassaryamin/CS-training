@@ -40,209 +40,204 @@
         </script><!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learn Technical Info Gathering for OSINT</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn Technical Info Gathering for OSINT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-  <div class="container mx-auto p-4 max-w-4xl">
-    <header class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-blue-800">Learn Technical Info Gathering for OSINT</h1>
-      <p class="text-lg text-gray-600 mt-2">An interactive guide to tools like WHOIS, DNS lookups, and more for Open Source Intelligence</p>
-      <p class="text-gray-600 mt-2">Enter commands in the simulator below to run tools and find flags. Submit flags to track progress.</p>
-    </header>
+<body class="bg-gray-100 font-sans text-gray-800">
+  <div class="container mx-auto p-6 max-w-4xl">
+    <h1 class="text-3xl font-bold mb-4">Learn Technical Info Gathering for OSINT</h1>
+    <p class="mb-4">An interactive guide to tools like WHOIS, DNS lookups, and more for Open Source Intelligence</p>
+    <p class="mb-6">Enter commands in the simulator below to run tools and find flags. Submit flags to track progress.</p>
 
-    <!-- Tool Simulator -->
-    <section class="mb-8">
-      <h2 class="text-2xl font-semibold text-blue-700 mb-2">Info Gathering Tool Simulator</h2>
-      <input id="tool-input" type="text" placeholder="Enter command (e.g., whois example.com)" class="p-2 border rounded w-full">
-      <button onclick="simulateTool()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Run Tool</button>
-      <p id="tool-result" class="mt-2 text-gray-700 whitespace-pre-wrap"></p>
-    </section>
-
-    <section id="lessons" class="space-y-6">
-      <!-- Challenge 1: WHOIS Lookup -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">1. WHOIS Lookup</h2>
-        <p class="text-gray-700 mt-2">WHOIS retrieves domain registration info, useful for OSINT to find owners and contacts.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">whois ctfdomain.com</code> to find the flag in the registrant details.</p>
-        <input id="flag1" type="text" placeholder="Enter the flag (e.g., CTF{whois_info})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag1', 'CTF{whois_info}', 'feedback1')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback1" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint1')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint1" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">whois ctfdomain.com</code> and look for the flag in the Registrant Name field.</p>
+    <div class="simulator bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 class="text-2xl font-semibold mb-4">Info Gathering Tool Simulator</h2>
+      <div class="flex space-x-4 mb-4">
+        <input type="text" id="commandInput" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter command...">
+        <button onclick="runTool()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Run Tool</button>
       </div>
+      <pre id="output" class="bg-gray-50 p-4 rounded-lg text-sm"></pre>
+    </div>
 
-      <!-- Challenge 2: DNS Lookup (nslookup) -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">2. DNS Lookup (nslookup)</h2>
-        <p class="text-gray-700 mt-2">nslookup resolves domain names to IP addresses, key for mapping networks.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">nslookup secret.ctf.com</code> to find the flag in the IP address comment.</p>
-        <input id="flag2" type="text" placeholder="Enter the flag (e.g., CTF{dns_ip})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag2', 'CTF{dns_ip}', 'feedback2')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback2" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint2')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint2" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">nslookup secret.ctf.com</code> and check the comment next to the IP.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">1. WHOIS Lookup</h3>
+      <p>WHOIS retrieves domain registration info, useful for OSINT to find owners and contacts.</p>
+      <p>Try it: Run <code>whois ctfdomain.com</code> to find the flag in the registrant details.</p>
+      <div class="flex space-xcasts-4 mt-4">
+        <input type="text" id="flag1" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(1)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(1)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint1">Enter <code>whois ctfdomain.com</code> and look for the flag in the Registrant Name field.</p>
+    </div>
 
-      <!-- Challenge 3: DNS Lookup (dig) -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">3. DNS Lookup (dig)</h2>
-        <p class="text-gray-700 mt-2">dig queries DNS servers for detailed records, essential for advanced OSINT.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">dig mx mail.ctf.com</code> to find the flag in the MX records.</p>
-        <input id="flag3" type="text" placeholder="Enter the flag (e.g., CTF{dig_mx})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag3', 'CTF{dig_mx}', 'feedback3')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback3" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint3')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint3" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">dig mx mail.ctf.com</code> and look in the MX priority comment.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">2. DNS Lookup (nslookup)</h3>
+      <p>nslookup resolves domain names to IP addresses, key for mapping networks.</p>
+      <p>Try it: Run <code>nslookup secret.ctf.com</code> to find the flag in the IP address comment.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag2" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(2)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(2)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint2">Enter <code>nslookup secret.ctf.com</code> and check the comment next to the IP.</p>
+    </div>
 
-      <!-- Challenge 4: Reverse DNS Lookup -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">4. Reverse DNS Lookup</h2>
-        <p class="text-gray-700 mt-2">Reverse DNS resolves IP addresses to domain names, helpful for identifying hosts.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">nslookup 192.168.1.1</code> to find the flag in the PTR record.</p>
-        <input id="flag4" type="text" placeholder="Enter the flag (e.g., CTF{reverse_dns})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag4', 'CTF{reverse_dns}', 'feedback4')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback4" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint4')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint4" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">nslookup 192.168.1.1</code> and check the PTR record.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">3. DNS Lookup (dig)</h3>
+      <p>dig queries DNS servers for detailed records, essential for advanced OSINT.</p>
+      <p>Try it: Run <code>dig mx mail.ctf.com</code> to find the flag in the MX records.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag3" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(3)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(3)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint3">Enter <code>dig mx mail.ctf.com</code> and look in the MX priority comment.</p>
+    </div>
 
-      <!-- Challenge 5: Traceroute -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">5. Traceroute</h2>
-        <p class="text-gray-700 mt-2">Traceroute shows the route to a host, revealing network topology for OSINT.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">traceroute target.ctf.com</code> to find the flag in the hops.</p>
-        <input id="flag5" type="text" placeholder="Enter the flag (e.g., CTF{traceroute})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag5', 'CTF{traceroute}', 'feedback5')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback5" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint5')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint5" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">traceroute target.ctf.com</code> and look in the hop comments.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">4. Reverse DNS Lookup</h3>
+      <p>Reverse DNS resolves IP addresses to domain names, helpful for identifying hosts.</p>
+      <p>Try it: Run <code>nslookup 192.168.1.1</code> to find the flag in the PTR record.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag4" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(4)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(4)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint4">Enter <code>nslookup 192.168.1.1</code> and check the PTR record.</p>
+    </div>
 
-      <!-- Challenge 6: Ping -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">6. Ping</h2>
-        <p class="text-gray-700 mt-2">Ping tests connectivity and reveals host info, used in network reconnaissance.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">ping -c 1 host.ctf.com</code> to find the flag in the statistics.</p>
-        <input id="flag6" type="text" placeholder="Enter the flag (e.g., CTF{ping})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag6', 'CTF{ping}', 'feedback6')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback6" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint6')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint6" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">ping -c 1 host.ctf.com</code> and check the summary.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">5. Traceroute</h3>
+      <p>Traceroute shows the route to a host, revealing network topology for OSINT.</p>
+      <p>Try it: Run <code>traceroute target.ctf.com</code> to find the flag in the hops.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag5" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(5)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(5)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint5">Enter <code>traceroute target.ctf.com</code> and look in the hop comments.</p>
+    </div>
 
-      <!-- Challenge 7: Port Scan (nmap) -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">7. Port Scan (nmap)</h2>
-        <p class="text-gray-700 mt-2">nmap scans ports for open services, crucial for vulnerability discovery.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">nmap -sV scan.ctf.com</code> to find the flag in the service details.</p>
-        <input id="flag7" type="text" placeholder="Enter the flag (e.g., CTF{nmap})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag7', 'CTF{nmap}', 'feedback7')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback7" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint7')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint7" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">nmap -sV scan.ctf.com</code> and look in the open ports.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">6. Ping</h3>
+      <p>Ping tests connectivity and reveals host info, used in network reconnaissance.</p>
+      <p>Try it: Run <code>ping -c 1 host.ctf.com</code> to find the flag in the statistics.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag6" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(6)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(6)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint6">Enter <code>ping -c 1 host.ctf.com</code> and check the summary.</p>
+    </div>
 
-      <!-- Challenge 8: Subdomain Enumeration (dnsdumpster) -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">8. Subdomain Enumeration</h2>
-        <p class="text-gray-700 mt-2">Subdomain enumeration finds hidden hosts using tools like dnsdumpster or dig.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">dig axfr subdomain.ctf.com</code> to find the flag in the records.</p>
-        <input id="flag8" type="text" placeholder="Enter the flag (e.g., CTF{subdomain})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag8', 'CTF{subdomain}', 'feedback8')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback8" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint8')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint8" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">dig axfr subdomain.ctf.com</code> for zone transfer.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">7. Port Scan (nmap)</h3>
+      <p>nmap scans ports for open services, crucial for vulnerability discovery.</p>
+      <p>Try it: Run <code>nmap -sV scan.ctf.com</code> to find the flag in the service details.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag7" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(7)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(7)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint7">Enter <code>nmap -sV scan.ctf.com</code> and look in the open ports.</p>
+    </div>
 
-      <!-- Challenge 9: Banner Grabbing (nc) -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">9. Banner Grabbing</h2>
-        <p class="text-gray-700 mt-2">Banner grabbing reveals service versions for vulnerability research.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">nc -v banner.ctf.com 80</code> to find the flag in the banner.</p>
-        <input id="flag9" type="text" placeholder="Enter the flag (e.g., CTF{banner})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag9', 'CTF{banner}', 'feedback9')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback9" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint9')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint9" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">nc -v banner.ctf.com 80</code> and check the HTTP banner.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">8. Subdomain Enumeration</h3>
+      <p>Subdomain enumeration finds hidden hosts using tools like dnsdumpster or dig.</p>
+      <p>Try it: Run <code>dig axfr subdomain.ctf.com</code> to find the flag in the records.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag8" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(8)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(8)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint8">Enter <code>dig axfr subdomain.ctf.com</code> for zone transfer.</p>
+    </div>
 
-      <!-- Challenge 10: Shodan Search -->
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold text-blue-700">10. Shodan Search</h2>
-        <p class="text-gray-700 mt-2">Shodan searches internet-connected devices for OSINT on services and vulnerabilities.</p>
-        <p class="text-gray-700 mt-2">Try it: Run <code class="bg-gray-200 p-1">shodan search port:80 org:ctf</code> to find the flag in the results.</p>
-        <input id="flag10" type="text" placeholder="Enter the flag (e.g., CTF{shodan})" class="mt-4 p-2 border rounded w-full">
-        <button onclick="checkFlag('flag10', 'CTF{shodan}', 'feedback10')" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Flag</button>
-        <p id="feedback10" class="mt-2 text-gray-700"></p>
-        <button onclick="toggleHint('hint10')" class="mt-2 text-blue-600 hover:underline">Show Hint</button>
-        <p id="hint10" class="mt-2 text-gray-700 hidden">Enter <code class="bg-gray-200 p-1">shodan search port:80 org:ctf</code> to simulate a Shodan query.</p>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">9. Banner Grabbing</h3>
+      <p>Banner grabbing reveals service versions for vulnerability research.</p>
+      <p>Try it: Run <code>nc -v banner.ctf.com 80</code> to find the flag in the banner.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag9" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(9)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(9)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
       </div>
-    </section>
+      <p class="hint hidden text-gray-600 mt-2" id="hint9">Enter <code>nc -v banner.ctf.com 80</code> and check the HTTP banner.</p>
+    </div>
 
-    <section class="mt-8">
-      <h2 class="text-2xl font-semibold text-blue-700">Progress</h2>
-      <p id="progress" class="text-gray-700 mt-2">Flags found: 0/10</p>
-    </section>
+    <div class="task bg-white shadow-md rounded-lg p-6 mb-4">
+      <h3 class="text-xl font-semibold mb-2">10. Shodan Search</h3>
+      <p>Shodan searches internet-connected devices for OSINT on services and vulnerabilities.</p>
+      <p>Try it: Run <code>shodan search port:80 org:ctf</code> to find the flag in the results.</p>
+      <div class="flex space-x-4 mt-4">
+        <input type="text" id="flag10" class="flex-grow p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter flag...">
+        <button onclick="submitFlag(10)" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Submit Flag</button>
+        <button onclick="showHint(10)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Show Hint</button>
+      </div>
+      <p class="hint hidden text-gray-600 mt-2" id="hint10">Enter <code>shodan search port:80 org:ctf</code> to simulate a Shodan query.</p>
+    </div>
+
+    <div class="progress bg-white shadow-md rounded-lg p-6">
+      <p class="font-bold">Flags found: <span id="flagsFound">0</span>/10</p>
+    </div>
   </div>
 
   <script>
-    let flagsFound = 0;
-    const foundFlags = new Set();
-
-    // Simulated Tool Results
     const toolResults = {
-      'whois ctfdomain.com': 'Domain Name: CTFDOMAIN.COM\nRegistrant Name: CTF{whois_info}\nRegistrant Organization: OSINT Academy\nRegistrant Email: info@ctf.com',
-      'nslookup secret.ctf.com': 'Server: 8.8.8.8\nAddress: 192.168.1.100 # CTF{dns_ip}\nName: secret.ctf.com\nAddress: 192.168.1.100',
-      'dig mx mail.ctf.com': '; <<>> DiG 9.10.6 <<>> mx mail.ctf.com\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 1234\n;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; QUESTION SECTION:\n;mail.ctf.com. IN MX\n\n;; ANSWER SECTION:\nmail.ctf.com. 3600 IN MX 10 mx.ctf.com. # CTF{dig_mx}\n\n;; ADDITIONAL SECTION:\nmx.ctf.com. 3600 IN A 192.168.1.50',
-      'nslookup 192.168.1.1': 'Server: 8.8.8.8\nAddress: 192.168.1.1\nName: gateway.ctf.com # CTF{reverse_dns}',
-      'traceroute target.ctf.com': 'traceroute to target.ctf.com (192.168.1.200), 30 hops max\n1 192.168.1.1 (gateway) 1 ms\n2 192.168.1.200 (target.ctf.com) 2 ms # CTF{traceroute}',
-      'ping -c 1 host.ctf.com': 'PING host.ctf.com (192.168.1.150): 56 data bytes\n64 bytes from 192.168.1.150: icmp_seq=0 ttl=64 time=1 ms\n--- host.ctf.com ping statistics ---\n1 packets transmitted, 1 received, 0% loss # CTF{ping}',
-      'nmap -sV scan.ctf.com': 'Nmap scan report for scan.ctf.com (192.168.1.250)\nHost is up (0.001s latency).\nPORT STATE SERVICE VERSION\n80/tcp open http Apache httpd 2.4.41 (CTF{nmap})',
-      'dig axfr subdomain.ctf.com': '; <<>> DiG 9.10.6 <<>> axfr subdomain.ctf.com\n;; global options: +cmd\nsubdomain.ctf.com. 3600 IN SOA ns.ctf.com. admin.ctf.com. 1 3600 3600 3600 3600\nhidden.subdomain.ctf.com. 3600 IN A 192.168.1.300 # CTF{subdomain}',
-      'nc -v banner.ctf.com 80': 'banner.ctf.com [192.168.1.400] 80 (http) open\nHTTP/1.1 200 OK\nServer: nginx/1.18.0 (CTF{banner})',
-      'shodan search port:80 org:ctf': 'Search results:\nHost: 192.168.1.500\nPort: 80\nBanner: Apache 2.4.41\nFlag: CTF{shodan}'
+      "whois ctfdomain.com": "Registrant Name: CTF{whois_flag_123} - Domain registered 2023-01-01",
+      "nslookup secret.ctf.com": "Address: 10.0.0.1 # Flag: CTF{nslookup_flag_456}",
+      "dig mx mail.ctf.com": "mail.ctf.com 10 mailserver.ctf.com # Flag: CTF{dig_flag_789}",
+      "nslookup 192.168.1.1": "PTR: host.ctf.com # Flag: CTF{reverse_dns_flag_012}",
+      "traceroute target.ctf.com": "Hop 3: 192.168.1.3 # Flag: CTF{traceroute_flag_345}",
+      "ping -c 1 host.ctf.com": "1 packets transmitted, 1 received # Flag: CTF{ping_flag_678}",
+      "nmap -sV scan.ctf.com": "Port 80: http (Apache 2.4.29) # Flag: CTF{nmap_flag_901}",
+      "dig axfr subdomain.ctf.com": "sub.subdomain.ctf.com # Flag: CTF{subdomain_flag_234}",
+      "nc -v banner.ctf.com 80": "HTTP/1.1 200 OK Server: nginx/1.14.0 # Flag: CTF{banner_flag_567}",
+      "shodan search port:80 org:ctf": "Result: 192.168.1.10:80 # Flag: CTF{shodan_flag_890}"
     };
 
-    function simulateTool() {
-      const cmd = document.getElementById('tool-input').value.trim().toLowerCase();
-      const result = toolResults[cmd] || 'No results found. Try a different command.';
-      document.getElementById('tool-result').textContent = result;
+    const correctFlags = {
+      1: "CTF{whois_flag_123}",
+      2: "CTF{nslookup_flag_456}",
+      3: "CTF{dig_flag_789}",
+      4: "CTF{reverse_dns_flag_012}",
+      5: "CTF{traceroute_flag_345}",
+      6: "CTF{ping_flag_678}",
+      7: "CTF{nmap_flag_901}",
+      8: "CTF{subdomain_flag_234}",
+      9: "CTF{banner_flag_567}",
+      10: "CTF{shodan_flag_890}"
+    };
+
+    let flagsFound = 0;
+
+    function runTool() {
+      const input = document.getElementById("commandInput").value.trim();
+      const output = document.getElementById("output");
+      output.textContent = toolResults[input] || "Command not recognized or incorrect. Try again.";
     }
 
-    function checkFlag(inputId, correctFlag, feedbackId) {
-      const input = document.getElementById(inputId).value.trim();
-      const feedback = document.getElementById(feedbackId);
-      if (input === correctFlag) {
-        feedback.textContent = "Correct! Flag accepted.";
-        feedback.classList.add("text-green-600");
-        feedback.classList.remove("text-red-600");
-        if (!foundFlags.has(correctFlag)) {
-          foundFlags.add(correctFlag);
+    function submitFlag(taskNumber) {
+      const flagInput = document.getElementById(`flag${taskNumber}`).value.trim();
+      if (flagInput === correctFlags[taskNumber]) {
+        alert("Flag correct!");
+        if (!document.getElementById(`flag${taskNumber}`).disabled) {
           flagsFound++;
-          document.getElementById("progress").textContent = `Flags found: ${flagsFound}/10`;
+          document.getElementById("flagsFound").textContent = flagsFound;
+          document.getElementById(`flag${taskNumber}`).disabled = true;
         }
       } else {
-        feedback.textContent = "Incorrect flag. Try again!";
-        feedback.classList.add("text-red-600");
-        feedback.classList.remove("text-green-600");
+        alert("Incorrect flag. Try again.");
       }
     }
 
-    function toggleHint(hintId) {
-      document.getElementById(hintId).classList.toggle('hidden');
+    function showHint(taskNumber) {
+      const hint = document.getElementById(`hint${taskNumber}`);
+      hint.classList.toggle("hidden");
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const lessons = document.querySelectorAll('#lessons > div');
-      lessons.forEach(lesson => {
-        lesson.style.display = 'block';
-        lesson.style.visibility = 'visible';
-      });
-    });
   </script>
 </body>
 </html>
