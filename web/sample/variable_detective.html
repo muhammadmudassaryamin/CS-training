@@ -85,7 +85,7 @@
         <h1>Variable Detective Challenge</h1>
         <p>This page is cluttered with code and distractions. Your mission: uncover the hidden flag!</p>
         
-        <!-- Distracting content -->
+        
         <div class="noise">
             <h2>Developer Notes</h2>
             <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
@@ -93,7 +93,7 @@
             <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.</p>
         </div>
 
-        <!-- Fake data grid -->
+        
         <div class="noise">
             <h3>Data Points</h3>
             <div class="random-grid">
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <!-- Useless form -->
+        
         <div class="noise">
             <h3>Update Profile</h3>
             <input type="text" id="profile" placeholder="Enter profile name">
@@ -114,12 +114,12 @@
             <div id="profile-output" class="output"></div>
         </div>
 
-        <!-- Hidden divs for clutter -->
+        
         <div id="hidden1" class="hidden">Nothing to see!</div>
         <div id="hidden2" class="hidden">Still nothing!</div>
         <div id="hidden3" class="hidden">Why bother?</div>
 
-        <!-- More noise -->
+        
         <div class="noise">
             <h3>Config Settings</h3>
             <p>Debug Mode: Off</p>
@@ -129,10 +129,10 @@
     </div>
 
     <script>
-        // The real flag
+        
         window.flag3 = 'FLAG{variable_uncovered}';
 
-        // Fake variables to distract
+        
         window.fakeFlag = 'FLAG{nope_not_this}';
         window.secret = 'FLAG{another_decoy}';
         window.config = {
@@ -141,32 +141,32 @@
             flag: 'FLAG{object_trap}'
         };
 
-        // Console noise
+        
         console.log('Fake flag:', window.fakeFlag);
         console.log('Config:', window.config);
         console.log('Random ID:', Math.random().toString(36).substring(2));
 
-        // Useless function
+        
         function updateProfile() {
             const profile = document.getElementById('profile').value;
             document.getElementById('profile-output').innerText = `Profile updated: ${profile}`;
         }
 
-        // More distracting variables
+        
         window.dummy1 = 'useless_data';
         window.dummy2 = 'FLAG{yet_another_fake}';
         window.dummy3 = 123456;
 
-        // Fake encoded variable
+        
         const encodedFake = btoa('FLAG{encoded_noise}');
         console.log('Encoded:', encodedFake);
 
-        // Useless loop to add noise
+        
         for (let i = 0; i < 5; i++) {
             console.log('Loop iteration:', i, 'Data:', `FLAG{loop_fake_${i}}`);
         }
 
-        // Fake event listener
+
         document.addEventListener('keydown', () => {
             console.log('Key pressed:', Date.now());
         });
