@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broken Access Control</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 30px; 
+            background: linear-gradient(to bottom, #f9f4f4, #e8e0e0); 
+            color: #333; 
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .noise { 
+            font-size: 0.85em; 
+            color: #555; 
+            line-height: 1.5; 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            background: #fafafa; 
+            border-radius: 5px; 
+        }
+        .fake-flag { color: #c0392b; font-weight: bold; }
+        .db-sim { 
+            font-family: 'Courier New', monospace; 
+            background: #34495e; 
+            color: #ecf0f1; 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin: 10px 0; 
+        }
+        .output { margin-top: 10px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; background: #fff; }
+        .hidden { display: none; }
+        .form-group { margin: 10px 0; }
+        input[type="text"], input[type="password"] { padding: 8px; width: 150px; }
+        button { 
+            padding: 8px 16px; 
+            background-color: #27ae60; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #229954; }
+        .role-display { font-weight: bold; color: #3498db; }
+        .session-info { font-size: 0.8em; color: #7f8c8d; }
+        .decoy-button { background-color: #e67e22; margin: 5px; }
+        .decoy-button:hover { background-color: #d35400; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Broken Access Control Challenge - Advanced</h1>
+        <p>This web app uses role-based access, sessions, and multi-layer resources. Login, then view resources</p>
+        
+        
+        <div class="noise">
+            <h2>Security Audit Notes</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
+            <p class="fake-flag">FLAG{secure_system}</p>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>
+        </div>
+
+        
+        <div class="noise">
+            <h3>Access Control Schema (Partial)</h3>
+            <div class="db-sim">
+                CREATE TABLE resources (id INT, owner VARCHAR, access_level VARCHAR, encrypted_data BLOB);
+                INSERT INTO resources VALUES (1, 'user1', 'user', 'decoy_data'), (2, 'user2', 'user', 'more_decoy');
+                -- Higher levels: admin, superadmin - encrypted with custom algo
+            </div>
+            <p class="fake-flag">Super Admin ID: FLAG{misleading_id}</p>
+        </div>
+
+       
+        <div class="noise">
+            <h3>Secure Login Portal</h3>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="user1" value="user1">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="pass" value="pass">
+                <button onclick="login()">Authenticate</button>
+                <button class="decoy-button" onclick="decoyLogin()">Guest Access</button>
+            </div>
+            <div id="login-output" class="output">Session inactive.</div>
+            <div id="role-display" class="role-display" style="display:none;"></div>
+            <div id="session-info" class="session-info" style="display:none;">Session Token: <span id="token-display"></span></div>
+        </div>
+
+        
+        <div class="noise">
+            <h3>Resource Access Viewer</h3>
+            <div id="resource-output" class="output">Authenticate and specify a resource ID in the URL (e.g., ?resource=1). Multi-layer checks applied.</div>
+        </div>
+
+        
+        <div id="hidden-noise1" class="hidden">Layer 1: Nothing!</div>
+        <div id="hidden-noise2" class="hidden">Layer 2: Clutter!</div>
+        <div id="hidden-noise3" class="hidden">Layer 3: Decoy!</div>
+
+       
+        <div class="noise">
+            <h3>Security Logs (Obfuscated)</h3>
+            <p>Log 1: User role check passed for ID 1.</p>
+            <p>FLAG{log_misdirect}</p>
+            <p>Log 2: Encryption layer intact.</p>
+            <p>Log 3: Superadmin bypass detected? No.</p>
+        </div>
+
+        
+        <div class="noise">
+            <h3>Utility Tools</h3>
+            <button class="decoy-button" onclick="fakeEncrypt()">Encrypt Data</button>
+            <button class="decoy-button" onclick="logActivity()">Log Activity</button>
+        </div>
+    </div>
+
+    <script>
+        
+        var _0x9f2d = []; 
+        var _0x3e8a = []; 
+        for (var i = 1; i <= 150; i++) {
+            _0x9f2d.push({
+                id: i,
+                owner: 'user' + i,
+                access_level: 'user',
+                data: btoa('Resource ' + i + ' for user - decoy layer 1') 
+            });
+        }
+        for (var j = 151; j <= 180; j++) {
+            _0x9f2d.push({
+                id: j,
+                owner: 'admin' + (j-150),
+                access_level: 'admin',
+                data: btoa('Admin resource ' + (j-150) + ' - fake layer 2: FLAG{admin_decoy}')
+            });
+        }
+        for (var k = 181; k <= 200; k++) {
+            _0x9f2d.push({
+                id: k,
+                owner: 'super' + (k-180),
+                access_level: 'superadmin',
+                data: btoa('Superadmin resource ' + (k-180) + ' - misleading: FLAG{super_decoy}')
+            });
+        }
+        
+        _0x9f2d.push({
+            id: 777,
+            owner: 'superadmin',
+            access_level: 'superadmin',
+            data: function() { 
+                var enc = 'UkxBR3thY2Nlc3NfY29udHJvbF9zaGF0dGVyZWR9'; 
+                var dec = atob(enc);
+                var xorKey = 13; 
+                var res = '';
+                for (var m = 0; m < dec.length; m++) {
+                    res += String.fromCharCode(dec.charCodeAt(m) ^ xorKey);
+                }
+                return res; 
+            }()
+        });
+        
+        
+        for (var d = 1; d <= 50; d++) {
+            _0x3e8a.push({id: d * 10, data: 'FLAG{decoy_db_' + d + '}'});
+        }
+        
+       
+        function fakeAuth(role, token) { return (role === 'superadmin' && token === 'fake') ? 'FLAG{fake_super}' : 'Invalid'; }
+        function decoyValidator(id) { return id < 100 ? 'FLAG{valid_decoy}' : 'Blocked'; }
+        var decoyResources = [
+            {id: 1, data: 'FLAG{user_decoy_1}'},
+            {id: 200, data: 'Access forbidden'},
+            {id: 42, data: 'FLAG{decoy_42}'},
+            {id: 777, data: 'Red herring: FLAG{almost_there}'} 
+        ];
+        window.dummyRole = 'FLAG{noise_role_layer}';
+        window.fakeFlagLayer = 'FLAG{fake_access_layer}';
+        window.obfuscatedToken = btoa('decoy_session');
+        
+        
+        console.log('Advanced access init: Multi-layer OK');
+        console.log('Fake auth test:', fakeAuth('user', 'test'));
+        console.log('Decoy validator:', decoyValidator(50));
+        console.log('Decoy resources sample:', decoyResources[0].data, decoyResources[2].data, decoyResources[3].data);
+        console.log('Obfuscated token:', window.obfuscatedToken);
+        console.log('Random layer:', Math.random().toString(36).substring(2) + '_noise');
+        
+        
+        for (let i = 0; i < 7; i++) {
+            console.log('Security layer log', i, ': FLAG{loop_layer_' + i + '}');
+        }
+        document.addEventListener('click', () => {
+            console.log('UI event layer:', Date.now(), ' - potential bypass?');
+        });
+        document.addEventListener('keydown', () => {
+            console.log('Key layer event:', Date.now());
+        });
+        function fakeEncrypt() {
+            console.log('Encryption layer: FLAG{encrypted_decoy}');
+            alert('Data encrypted - nothing happened.');
+        }
+        function logActivity() {
+            console.log('Activity logged: FLAG{activity_decoy}');
+        }
+        function decoyLogin() {
+            document.getElementById('login-output').innerText = 'Guest access - limited: FLAG{guest_decoy}';
+        }
+        
+        
+        var currentRole = 'guest';
+        var sessionToken = localStorage.getItem('session_token') || null;
+        if (sessionToken) {
+            
+            document.getElementById('login-output').innerText = 'Session restored.';
+            document.getElementById('role-display').innerText = 'Role: ' + localStorage.getItem('user_role');
+            document.getElementById('role-display').style.display = 'block';
+            document.getElementById('session-info').style.display = 'block';
+            document.getElementById('token-display').innerText = sessionToken;
+            currentRole = localStorage.getItem('user_role') || 'guest';
+        }
+        function login() {
+            var user = document.getElementById('username').value;
+            var pass = document.getElementById('password').value;
+            if (user === 'user1' && pass === 'pass') {
+                currentRole = 'user';
+                sessionToken = 'user_tok_' + Date.now();
+                localStorage.setItem('session_token', sessionToken);
+                localStorage.setItem('user_role', 'user');
+                document.getElementById('login-output').innerText = 'Logged in as user. Session active.';
+                document.getElementById('role-display').innerText = 'Role: user';
+                document.getElementById('role-display').style.display = 'block';
+                document.getElementById('session-info').style.display = 'block';
+                document.getElementById('token-display').innerText = sessionToken;
+            } else if (user === 'admin' && pass === 'adminpass') {
+                currentRole = 'admin';
+                sessionToken = 'admin_tok_' + Date.now();
+                localStorage.setItem('session_token', sessionToken);
+                localStorage.setItem('user_role', 'admin');
+                document.getElementById('login-output').innerText = 'Logged in as admin. Elevated session.';
+                document.getElementById('role-display').innerText = 'Role: admin';
+                document.getElementById('role-display').style.display = 'block';
+                document.getElementById('session-info').style.display = 'block';
+                document.getElementById('token-display').innerText = sessionToken;
+            } else if (user === 'superadmin' && pass === btoa('hiddenpass')) { 
+                currentRole = 'superadmin';
+                sessionToken = 'super_tok_' + Date.now();
+                localStorage.setItem('session_token', sessionToken);
+                localStorage.setItem('user_role', 'superadmin');
+                document.getElementById('login-output').innerText = 'Superadmin access granted. Full control.';
+                document.getElementById('role-display').innerText = 'Role: superadmin';
+                document.getElementById('role-display').style.display = 'block';
+                document.getElementById('session-info').style.display = 'block';
+                document.getElementById('token-display').innerText = sessionToken;
+            } else {
+                currentRole = 'guest';
+                sessionToken = null;
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('user_role');
+                document.getElementById('login-output').innerText = 'Authentication failed. Decoy layer triggered.';
+                document.getElementById('role-display').style.display = 'none';
+                document.getElementById('session-info').style.display = 'none';
+            }
+            
+            viewResource();
+        }
+        
+        
+        function viewResource() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var id = parseInt(urlParams.get('resource'));
+            if (isNaN(id)) {
+                document.getElementById('resource-output').innerText = 'Specify resource ID in URL (e.g., ?resource=1). Session validation required.';
+                return;
+            }
+            
+            if (!sessionToken) {
+                console.log('Layer 1: Session invalid - but proceeding for demo');
+            } else {
+                console.log('Layer 1: Session valid for role:', currentRole);
+            }
+            
+            var _0x7c9a = currentRole; 
+            if (_0x7c9a === 'superadmin') {
+                console.log('Layer 2: Superadmin bypass layer engaged.');
+            } else if (_0x7c9a === 'admin') {
+                console.log('Layer 2: Admin layer partial access.');
+            } else {
+                console.log('Layer 2: User/guest layer - potential escalation?');
+            }
+            
+            console.log('Layer 3: Fetching resource', id, 'for', _0x7c9a);
+            var resource = _0x9f2d.find(r => r.id === id);
+            if (resource) {
+                var _0x2b4f = resource.access_level; 
+                var accessMsg = (_0x7c9a === _0x2b4f || _0x7c9a === 'admin' || _0x7c9a === 'superadmin') ? 'Layer access: Granted (enforced?)' : 'Layer access: Denied - but data exposed anyway';
+                
+                var dataLayer = typeof resource.data === 'string' ? atob(resource.data) : resource.data;
+                document.getElementById('resource-output').innerHTML = 
+                    '<p>Resource ID: ' + resource.id + '</p>' +
+                    '<p>Owner: ' + resource.owner + '</p>' +
+                    '<p>Access Level: ' + _0x2b4f + '</p>' +
+                    '<p>Access Check Layers: ' + accessMsg + '</p>' +
+                    '<p>Data (Decrypted Layer): ' + dataLayer + '</p>' +
+                    '<p>Session Layer: Active (Token: ' + (sessionToken || 'None') + ')</p>';
+            } else {
+                
+                var decoyRes = _0x3e8a.find(d => d.id === id);
+                if (decoyRes) {
+                    document.getElementById('resource-output').innerText = 'Decoy resource found: ' + decoyRes.data;
+                } else {
+                    document.getElementById('resource-output').innerText = 'Resource not found in any layer.';
+                }
+            }
+        }
+        
+        
+        var encodedNoiseLayer = btoa('FLAG{encoded_layer_decoy}');
+        console.log('Layer encoded noise:', encodedNoiseLayer);
+        var xorDecoy = function(s) { return s.split('').map(c => String.fromCharCode(c.charCodeAt(0) ^ 5)).join(''); };
+        console.log('XOR decoy layer:', xorDecoy('FLAG{xor_decoy}'));
+        
+        
+        viewResource();
+    </script>
+</body>
+</html>
