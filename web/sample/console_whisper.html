@@ -12,12 +12,12 @@
                 var firstSheetName = workbook.SheetNames[0];
                 var worksheet = workbook.Sheets[firstSheetName];
 
-                // Convert sheet to JSON to filter blank rows
+              
                 var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+              
                 var filteredData = jsonData.filter(row => row.some(filledCell));
 
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+              
                 var headerRowIndex = filteredData.findIndex((row, index) =>
                   row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                 );
@@ -81,7 +81,7 @@
         <h1>Console Whisper Challenge</h1>
         <p>Dive into this chaotic page and uncover the hidden flag. It's out there, whispering in the code!</p>
         
-        <!-- Distracting content -->
+        
         <div class="noise">
             <h2>System Logs</h2>
             <p>Debugging session started at 2025-09-10. Check server logs for details.</p>
@@ -89,7 +89,7 @@
             <p>Processing user requests... All systems nominal.</p>
         </div>
 
-        <!-- Fake table data -->
+        
         <div class="noise">
             <h3>Database Snapshot</h3>
             <table class="random-table">
@@ -100,7 +100,7 @@
             </table>
         </div>
 
-        <!-- Useless form -->
+        
         <div class="noise">
             <h3>Search Logs</h3>
             <input type="text" id="search" placeholder="Search logs">
@@ -108,11 +108,11 @@
             <div id="search-output" class="output"></div>
         </div>
 
-        <!-- Hidden elements -->
+        
         <div id="hidden-noise1" class="hidden">Just noise!</div>
         <div id="hidden-noise2" class="hidden">More distractions!</div>
 
-        <!-- More garbage -->
+       
         <div class="noise">
             <h3>API Endpoints</h3>
             <p>/api/users: Fetch user data</p>
@@ -122,29 +122,29 @@
     </div>
 
     <script>
-        // Flood console with noise
+        
         console.log('System init: OK');
         console.log('Fake flag: FLAG{console_noise_1}');
         console.log('User session: 0xFF12AB34');
         
-        // The real flag
+        
         console.log('Secret: FLAG{console_secret_revealed}');
         
-        // More distractions
+        
         console.log('Error: FLAG{another_fake}');
         console.log('Debug: Processing batch #456');
 
-        // Useless function
+        
         function searchLogs() {
             const query = document.getElementById('search').value;
             document.getElementById('search-output').innerText = `Search result for "${query}": No logs found.`;
         }
 
-        // Fake encoded data
+       
         const encodedFake = btoa('FLAG{encoded_distraction}');
         console.log('Encoded data:', encodedFake);
 
-        // Useless object
+        
         const noiseObj = {
             user: 'test_user',
             token: 'xyz789',
@@ -152,12 +152,12 @@
         };
         console.log('Config:', noiseObj);
 
-        // Random interval to add console spam
+       
         setInterval(() => {
             console.log('Status update:', Math.random().toString(36).substring(2));
         }, 5000);
 
-        // Fake event listener
+       
         document.addEventListener('mousemove', () => {
             console.log('Mouse moved at:', Date.now());
         });
