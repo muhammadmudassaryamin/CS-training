@@ -12,9 +12,9 @@
                 var firstSheetName = workbook.SheetNames[0];
                 var worksheet = workbook.Sheets[firstSheetName];
 
-                // Convert sheet to JSON to filter blank rows
+         
                 var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                
                 var filteredData = jsonData.filter(row => row.some(filledCell));
 
                 // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
@@ -81,7 +81,7 @@
         <h1>Function Caller Challenge</h1>
         <p>This page is a maze of code. Find the flag by digging through the chaos!</p>
         
-        <!-- Distracting content -->
+     
         <div class="noise">
             <h2>Project Updates</h2>
             <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
@@ -89,7 +89,7 @@
             <p>Voluptatum deleniti atque corrupti quos dolores et quas molestias.</p>
         </div>
 
-        <!-- Fake function list -->
+    
         <div class="noise">
             <h3>Available Functions</h3>
             <ul class="random-list">
@@ -100,7 +100,7 @@
             </ul>
         </div>
 
-        <!-- Useless form -->
+     
         <div class="noise">
             <h3>Run Command</h3>
             <input type="text" id="command" placeholder="Enter command">
@@ -108,12 +108,12 @@
             <div id="command-output" class="output"></div>
         </div>
 
-        <!-- Hidden elements -->
+     
         <div id="hidden-noise1" class="hidden">Empty!</div>
         <div id="hidden-noise2" class="hidden">Nada!</div>
         <div id="hidden-noise3" class="hidden">Pointless!</div>
 
-        <!-- More noise -->
+      
         <div class="noise">
             <h3>System Info</h3>
             <p>Version: 2.3.1</p>
@@ -123,7 +123,7 @@
     </div>
 
     <script>
-        // Fake functions to distract
+     
         function getUserData() {
             return 'User: guest, FLAG{fake_user_data}';
         }
@@ -136,38 +136,38 @@
             return { status: 'OK', flag: 'FLAG{status_noise}' };
         }
 
-        // The real function, updated to return the flag
+      
         function revealFlag() {
             const flag = 'FLAG{function_called_successfully}';
             document.getElementById('command-output').innerText = flag;
-            return flag; // Return the flag to avoid undefined in console
+            return flag; 
         }
 
-        // Useless function for form
+    
         function runCommand() {
             const cmd = document.getElementById('command').value;
             document.getElementById('command-output').innerText = `Command "${cmd}" not found.`;
         }
 
-        // Console noise
+     
         console.log('Fake function output:', getUserData());
         console.log('Status:', updateStatus());
         console.log('Random:', Math.random().toString(36).substring(2));
 
-        // Fake variables
+        
         window.dummyFlag = 'FLAG{dummy_flag}';
         window.noise = 'FLAG{noise_variable}';
 
-        // Fake encoded data
+        
         const encodedFake = btoa('FLAG{encoded_trap}');
         console.log('Encoded:', encodedFake);
 
-        // Useless loop
+      
         for (let i = 0; i < 3; i++) {
             console.log('Fake flag', i, ':', `FLAG{fake_loop_${i}}`);
         }
 
-        // Fake event listener
+      
         document.addEventListener('click', () => {
             console.log('Click detected:', Date.now());
         });
