@@ -1,0 +1,161 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Challenge: Hidden in Plain Sight</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            margin: 30px; 
+            background: linear-gradient(135deg, #f0f0f0, #d9e6ff); 
+            color: #333; 
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .noise { 
+            font-size: 0.9em; 
+            color: #666; 
+            line-height: 1.6; 
+            border: 1px dashed #ccc; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            background: #fff; 
+        }
+        .fake-flag { color: #ff4444; font-weight: bold; }
+        .random-list { list-style: none; padding: 0; }
+        .random-list li { margin: 5px 0; }
+        .hidden { display: none; }
+        button { 
+            padding: 10px 20px; 
+            background-color: #ff9900; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #e68a00; }
+        .output { margin-top: 10px; padding: 10px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Web Security Challenge</h1>
+        <p>This page is a mess of code and content. Your job is to find the hidden flag. Good luck!</p>
+        
+        <!-- Start of garbage content -->
+        <div class="noise">
+            <h2>Random Project Notes</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p class="fake-flag">NOT_A_FLAG{try_harder}</p>
+            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+
+        <!-- More distracting content -->
+        <div class="noise">
+            <h3>Todo List</h3>
+            <ul class="random-list">
+                <li>Fix header alignment</li>
+                <li>Add more CSS animations</li>
+                <li>Hide some secrets better</li>
+                <li>FLAG{fake_flag_123} <!-- This is not the real flag! --></li>
+                <li>Update backend API</li>
+            </ul>
+        </div>
+
+        <!-- The real flag, buried deep -->
+        <!-- FLAG{comment_hunter} -->
+
+        <!-- Another distracting section -->
+        <div class="noise">
+            <h3>User Feedback Form</h3>
+            <input type="text" id="feedback" placeholder="Enter feedback">
+            <button onclick="submitFeedback()">Submit</button>
+            <div id="feedback-output" class="output"></div>
+        </div>
+
+        <!-- Hidden divs to add clutter -->
+        <div id="hidden1" class="hidden">Nothing here!</div>
+        <div id="hidden2" class="hidden">Still nothing!</div>
+        <div id="hidden3" class="hidden">Why are you looking here?</div>
+
+        <!-- More garbage -->
+        <div class="noise">
+            <h3>Random Data</h3>
+            <p>API Key: ak_987654321</p>
+            <p>Session ID: sess_1234567890</p>
+            <p class="fake-flag">FLAG{another_decoy}</p>
+        </div>
+    </div>
+
+    <script>
+        // Useless function to add noise
+        function submitFeedback() {
+            const feedback = document.getElementById('feedback').value;
+            document.getElementById('feedback-output').innerText = `Thanks for feedback: ${feedback}`;
+        }
+
+        // Fake flag in JS to distract
+        const fakeSecret = 'FLAG{js_decoy_flag}';
+        console.log('Debug info:', fakeSecret);
+
+        // Random array to clutter
+        const junkData = [
+            'user123',
+            'password456',
+            'FLAG{not_the_flag}',
+            Math.random().toString(36).substring(2)
+        ];
+
+        // More console noise
+        console.log('Junk data:', junkData);
+
+        // Useless event listener
+        document.addEventListener('click', function() {
+            console.log('Clicked somewhere!');
+        });
+
+        // Fake encoded flag
+        const encodedNoise = btoa('FLAG{encoded_but_fake}');
+        console.log('Encoded noise:', encodedNoise);
+    </script>
+</body>
+</html>

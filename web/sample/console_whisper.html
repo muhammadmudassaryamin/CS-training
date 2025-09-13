@@ -1,0 +1,166 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Challenge: Console Whisper</title>
+    <style>
+        body { 
+            font-family: 'Verdana', sans-serif; 
+            margin: 25px; 
+            background: linear-gradient(to bottom, #e0e7ff, #ffffff); 
+            color: #222; 
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .noise { 
+            font-size: 0.85em; 
+            color: #555; 
+            line-height: 1.5; 
+            border: 1px solid #ddd; 
+            padding: 12px; 
+            margin-bottom: 15px; 
+            background: #f9f9f9; 
+        }
+        .fake-flag { color: #e63946; font-weight: bold; }
+        .random-table { border-collapse: collapse; width: 100%; }
+        .random-table th, .random-table td { border: 1px solid #ccc; padding: 8px; }
+        button { 
+            padding: 12px 24px; 
+            background-color: #2a9d8f; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #227c6f; }
+        .output { margin-top: 12px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 4px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Console Whisper Challenge</h1>
+        <p>Dive into this chaotic page and uncover the hidden flag. It's out there, whispering in the code!</p>
+        
+        <!-- Distracting content -->
+        <div class="noise">
+            <h2>System Logs</h2>
+            <p>Debugging session started at 2025-09-10. Check server logs for details.</p>
+            <p class="fake-flag">FLAG{not_the_one}</p>
+            <p>Processing user requests... All systems nominal.</p>
+        </div>
+
+        <!-- Fake table data -->
+        <div class="noise">
+            <h3>Database Snapshot</h3>
+            <table class="random-table">
+                <tr><th>ID</th><th>Data</th></tr>
+                <tr><td>1</td><td>User: john_doe</td></tr>
+                <tr><td>2</td><td>FLAG{fake_table_flag}</td></tr>
+                <tr><td>3</td><td>Status: active</td></tr>
+            </table>
+        </div>
+
+        <!-- Useless form -->
+        <div class="noise">
+            <h3>Search Logs</h3>
+            <input type="text" id="search" placeholder="Search logs">
+            <button onclick="searchLogs()">Search</button>
+            <div id="search-output" class="output"></div>
+        </div>
+
+        <!-- Hidden elements -->
+        <div id="hidden-noise1" class="hidden">Just noise!</div>
+        <div id="hidden-noise2" class="hidden">More distractions!</div>
+
+        <!-- More garbage -->
+        <div class="noise">
+            <h3>API Endpoints</h3>
+            <p>/api/users: Fetch user data</p>
+            <p>/api/logs: FLAG{decoy_endpoint}</p>
+            <p>/api/status: System uptime</p>
+        </div>
+    </div>
+
+    <script>
+        // Flood console with noise
+        console.log('System init: OK');
+        console.log('Fake flag: FLAG{console_noise_1}');
+        console.log('User session: 0xFF12AB34');
+        
+        // The real flag
+        console.log('Secret: FLAG{console_secret_revealed}');
+        
+        // More distractions
+        console.log('Error: FLAG{another_fake}');
+        console.log('Debug: Processing batch #456');
+
+        // Useless function
+        function searchLogs() {
+            const query = document.getElementById('search').value;
+            document.getElementById('search-output').innerText = `Search result for "${query}": No logs found.`;
+        }
+
+        // Fake encoded data
+        const encodedFake = btoa('FLAG{encoded_distraction}');
+        console.log('Encoded data:', encodedFake);
+
+        // Useless object
+        const noiseObj = {
+            user: 'test_user',
+            token: 'xyz789',
+            fakeFlag: 'FLAG{object_noise}'
+        };
+        console.log('Config:', noiseObj);
+
+        // Random interval to add console spam
+        setInterval(() => {
+            console.log('Status update:', Math.random().toString(36).substring(2));
+        }, 5000);
+
+        // Fake event listener
+        document.addEventListener('mousemove', () => {
+            console.log('Mouse moved at:', Date.now());
+        });
+    </script>
+</body>
+</html>

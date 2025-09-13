@@ -1,0 +1,176 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Challenge: Function Caller</title>
+    <style>
+        body { 
+            font-family: 'Trebuchet MS', sans-serif; 
+            margin: 30px; 
+            background: linear-gradient(to left, #e6f3fa, #b3cde0); 
+            color: #222; 
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        .noise { 
+            font-size: 0.9em; 
+            color: #444; 
+            line-height: 1.6; 
+            border: 1px solid #d0d0d0; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            background: #f5f6fa; 
+        }
+        .fake-flag { color: #c0392b; font-weight: bold; }
+        .random-list { list-style: circle; padding-left: 20px; }
+        .random-list li { margin: 5px 0; }
+        button { 
+            padding: 10px 20px; 
+            background-color: #e74c3c; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #c0392b; }
+        .output { margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Function Caller Challenge</h1>
+        <p>This page is a maze of code. Find the flag by digging through the chaos!</p>
+        
+        <!-- Distracting content -->
+        <div class="noise">
+            <h2>Project Updates</h2>
+            <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
+            <p class="fake-flag">FLAG{not_a_function}</p>
+            <p>Voluptatum deleniti atque corrupti quos dolores et quas molestias.</p>
+        </div>
+
+        <!-- Fake function list -->
+        <div class="noise">
+            <h3>Available Functions</h3>
+            <ul class="random-list">
+                <li>getUserData()</li>
+                <li>processInput()</li>
+                <li>FLAG{fake_function_list}</li>
+                <li>updateStatus()</li>
+            </ul>
+        </div>
+
+        <!-- Useless form -->
+        <div class="noise">
+            <h3>Run Command</h3>
+            <input type="text" id="command" placeholder="Enter command">
+            <button onclick="runCommand()">Execute</button>
+            <div id="command-output" class="output"></div>
+        </div>
+
+        <!-- Hidden elements -->
+        <div id="hidden-noise1" class="hidden">Empty!</div>
+        <div id="hidden-noise2" class="hidden">Nada!</div>
+        <div id="hidden-noise3" class="hidden">Pointless!</div>
+
+        <!-- More noise -->
+        <div class="noise">
+            <h3>System Info</h3>
+            <p>Version: 2.3.1</p>
+            <p>FLAG{decoy_info}</p>
+            <p>Environment: Production</p>
+        </div>
+    </div>
+
+    <script>
+        // Fake functions to distract
+        function getUserData() {
+            return 'User: guest, FLAG{fake_user_data}';
+        }
+
+        function processInput() {
+            console.log('Processing: FLAG{input_trap}');
+        }
+
+        function updateStatus() {
+            return { status: 'OK', flag: 'FLAG{status_noise}' };
+        }
+
+        // The real function, updated to return the flag
+        function revealFlag() {
+            const flag = 'FLAG{function_called_successfully}';
+            document.getElementById('command-output').innerText = flag;
+            return flag; // Return the flag to avoid undefined in console
+        }
+
+        // Useless function for form
+        function runCommand() {
+            const cmd = document.getElementById('command').value;
+            document.getElementById('command-output').innerText = `Command "${cmd}" not found.`;
+        }
+
+        // Console noise
+        console.log('Fake function output:', getUserData());
+        console.log('Status:', updateStatus());
+        console.log('Random:', Math.random().toString(36).substring(2));
+
+        // Fake variables
+        window.dummyFlag = 'FLAG{dummy_flag}';
+        window.noise = 'FLAG{noise_variable}';
+
+        // Fake encoded data
+        const encodedFake = btoa('FLAG{encoded_trap}');
+        console.log('Encoded:', encodedFake);
+
+        // Useless loop
+        for (let i = 0; i < 3; i++) {
+            console.log('Fake flag', i, ':', `FLAG{fake_loop_${i}}`);
+        }
+
+        // Fake event listener
+        document.addEventListener('click', () => {
+            console.log('Click detected:', Date.now());
+        });
+    </script>
+</body>
+</html>

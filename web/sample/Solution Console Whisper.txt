@@ -1,0 +1,10 @@
+Walkthrough for Console Whisper
+Objective: Find the flag hidden in the web page by examining console output.
+Steps:
+
+Open Developer Tools: Open the browser's developer tools by pressing F12 (or right-click and select "Inspect"). Navigate to the Console tab.
+Sift Through Console Logs: The console is filled with distracting messages, including fake flags (FLAG{console_noise_1}, FLAG{another_fake}, FLAG{object_noise}, FLAG{encoded_distraction}) and irrelevant logs like system status, user sessions, and random updates. Scroll through or search (Ctrl+F in the console) for messages containing "FLAG".
+Identify the Real Flag: Among the noise, find the log Secret: FLAG{console_secret_revealed}. This is the real flag.
+Extract the Flag: The flag is FLAG{console_secret_revealed}.
+
+Concept Learned: Developers often use console.log for debugging, which can inadvertently leak sensitive information like flags in a CTF. Inspecting the console is a key web security skill to uncover hidden data. The challenge teaches filtering through irrelevant logs to find the critical piece of information.

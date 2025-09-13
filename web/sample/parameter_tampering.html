@@ -1,0 +1,192 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parameter Tampering Challenge</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 30px; 
+            background: linear-gradient(to bottom, #f4f4f9, #e0e0e8); 
+            color: #333; 
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .noise { 
+            font-size: 0.85em; 
+            color: #555; 
+            line-height: 1.5; 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            background: #fafafa; 
+            border-radius: 5px; 
+        }
+        .fake-flag { color: #e74c3c; font-weight: bold; }
+        .db-sim { 
+            font-family: 'Courier New', monospace; 
+            background: #2c3e50; 
+            color: #ecf0f1; 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin: 10px 0; 
+        }
+        .output { margin-top: 10px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 4px; background: #fff; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Parameter Tampering Challenge</h1>
+        <p>This simulated web app has a user database. View profiles by setting the ID in the URL (e.g., ?id=1). The backend is emulated in JavaScript. Find the hidden flag!</p>
+        
+        <!-- Distracting content -->
+        <div class="noise">
+            <h2>App Overview</h2>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+            <p class="fake-flag">FLAG{not_the_real_one}</p>
+            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.</p>
+        </div>
+
+        <!-- Fake DB schema -->
+        <div class="noise">
+            <h3>Database Schema</h3>
+            <div class="db-sim">
+                CREATE TABLE users (id INT, name VARCHAR, role VARCHAR);
+                INSERT INTO users VALUES (1, 'user1', 'guest'), (2, 'user2', 'user');
+            </div>
+            <p class="fake-flag">Admin ID: FLAG{fake_admin}</p>
+        </div>
+
+        <!-- Profile Output -->
+        <div class="noise">
+            <h3>User Profile</h3>
+            <div id="profile-output" class="output">Enter an ID in the URL (e.g., ?id=1)</div>
+        </div>
+
+        <!-- Hidden elements -->
+        <div id="hidden-noise1" class="hidden">Irrelevant data!</div>
+        <div id="hidden-noise2" class="hidden">Clutter here!</div>
+        <div id="hidden-noise3" class="hidden">Nothing to see!</div>
+
+        <!-- More noise -->
+        <div class="noise">
+            <h3>System Logs</h3>
+            <p>Log entry 1: User 1 accessed.</p>
+            <p>FLAG{log_decoy}</p>
+            <p>Log entry 2: System stable.</p>
+        </div>
+    </div>
+
+    <script>
+        // Simulated SQL Database (100 users + 1 admin)
+        var _0x1a2b = [];
+        for (var i = 1; i <= 100; i++) {
+            _0x1a2b.push({
+                id: i,
+                name: 'user' + i,
+                role: i % 2 === 0 ? 'user' : 'guest',
+                data: 'Profile for user ' + i
+            });
+        }
+        // Admin user with the flag, ID 999
+        _0x1a2b.push({
+            id: 999,
+            name: 'admin',
+            role: 'admin',
+            data: atob('RkxBR3twYXJhbWV0ZXJfdGFtcGVyZWR9') // Base64-encoded flag
+        });
+        
+        // Fake functions and variables for distraction
+        function fakeQuery(sql) { return 'Error: FLAG{fake_query}'; }
+        var decoyDB = [
+            {id: 1, data: 'FLAG{decoy_1}'},
+            {id: 1000, data: 'Access denied'},
+            {id: 42, data: 'FLAG{decoy_42}'}
+        ];
+        window.dummyVar = 'FLAG{noise_var}';
+        window.fakeAdmin = 'FLAG{fake_admin_id}';
+        
+        // Console noise
+        console.log('DB init: OK');
+        console.log('Fake query:', fakeQuery('SELECT * FROM users'));
+        console.log('Decoy DB:', decoyDB[0].data, decoyDB[2].data);
+        console.log('Random:', Math.random().toString(36).substring(2));
+        
+        // Useless loops and events
+        for (let i = 0; i < 5; i++) {
+            console.log('Noise log', i, ': FLAG{loop_fake_' + i + '}');
+        }
+        document.addEventListener('keydown', () => {
+            console.log('Key event:', Date.now());
+        });
+        
+        // Vulnerable function - processes GET parameter
+        function viewProfile() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var id = parseInt(urlParams.get('id'));
+            if (isNaN(id)) {
+                document.getElementById('profile-output').innerText = 'Please provide a valid ID in the URL (e.g., ?id=1)';
+                return;
+            }
+            // Vulnerable: Direct object reference, no auth check
+            var user = _0x1a2b.find(u => u.id === id);
+            if (user) {
+                document.getElementById('profile-output').innerHTML = 
+                    '<p>ID: ' + user.id + '</p>' +
+                    '<p>Name: ' + user.name + '</p>' +
+                    '<p>Role: ' + user.role + '</p>' +
+                    '<p>Data: ' + user.data + '</p>';
+            } else {
+                document.getElementById('profile-output').innerText = 'User not found.';
+            }
+        }
+        
+        // Fake encoded data
+        var encodedNoise = btoa('FLAG{encoded_decoy}');
+        console.log('Encoded noise:', encodedNoise);
+        
+        // Run on page load
+        viewProfile();
+    </script>
+</body>
+</html>

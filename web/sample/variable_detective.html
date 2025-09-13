@@ -1,0 +1,175 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Security Challenge: Variable Detective</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            margin: 30px; 
+            background: linear-gradient(to right, #fff3e0, #ffe0b2); 
+            color: #333; 
+        }
+        .container { max-width: 850px; margin: 0 auto; }
+        .noise { 
+            font-size: 0.9em; 
+            color: #444; 
+            line-height: 1.7; 
+            border: 1px solid #e0e0e0; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            background: #fff8e1; 
+        }
+        .fake-flag { color: #d32f2f; font-weight: bold; }
+        .random-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 10px; 
+        }
+        .grid-item { border: 1px solid #ccc; padding: 10px; }
+        button { 
+            padding: 10px 20px; 
+            background-color: #388e3c; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #2e7d32; }
+        .output { margin-top: 10px; padding: 10px; border: 1px solid #ddd; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Variable Detective Challenge</h1>
+        <p>This page is cluttered with code and distractions. Your mission: uncover the hidden flag!</p>
+        
+        <!-- Distracting content -->
+        <div class="noise">
+            <h2>Developer Notes</h2>
+            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+            <p class="fake-flag">FLAG{wrong_variable}</p>
+            <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.</p>
+        </div>
+
+        <!-- Fake data grid -->
+        <div class="noise">
+            <h3>Data Points</h3>
+            <div class="random-grid">
+                <div class="grid-item">User: guest</div>
+                <div class="grid-item">FLAG{grid_decoy}</div>
+                <div class="grid-item">Status: online</div>
+                <div class="grid-item">Token: abc123</div>
+                <div class="grid-item">FLAG{another_fake}</div>
+                <div class="grid-item">Last login: 2025-09-10</div>
+            </div>
+        </div>
+
+        <!-- Useless form -->
+        <div class="noise">
+            <h3>Update Profile</h3>
+            <input type="text" id="profile" placeholder="Enter profile name">
+            <button onclick="updateProfile()">Update</button>
+            <div id="profile-output" class="output"></div>
+        </div>
+
+        <!-- Hidden divs for clutter -->
+        <div id="hidden1" class="hidden">Nothing to see!</div>
+        <div id="hidden2" class="hidden">Still nothing!</div>
+        <div id="hidden3" class="hidden">Why bother?</div>
+
+        <!-- More noise -->
+        <div class="noise">
+            <h3>Config Settings</h3>
+            <p>Debug Mode: Off</p>
+            <p>API Token: FLAG{not_a_flag}</p>
+            <p>Server: localhost:8080</p>
+        </div>
+    </div>
+
+    <script>
+        // The real flag
+        window.flag3 = 'FLAG{variable_uncovered}';
+
+        // Fake variables to distract
+        window.fakeFlag = 'FLAG{nope_not_this}';
+        window.secret = 'FLAG{another_decoy}';
+        window.config = {
+            apiKey: 'xyz789',
+            debug: false,
+            flag: 'FLAG{object_trap}'
+        };
+
+        // Console noise
+        console.log('Fake flag:', window.fakeFlag);
+        console.log('Config:', window.config);
+        console.log('Random ID:', Math.random().toString(36).substring(2));
+
+        // Useless function
+        function updateProfile() {
+            const profile = document.getElementById('profile').value;
+            document.getElementById('profile-output').innerText = `Profile updated: ${profile}`;
+        }
+
+        // More distracting variables
+        window.dummy1 = 'useless_data';
+        window.dummy2 = 'FLAG{yet_another_fake}';
+        window.dummy3 = 123456;
+
+        // Fake encoded variable
+        const encodedFake = btoa('FLAG{encoded_noise}');
+        console.log('Encoded:', encodedFake);
+
+        // Useless loop to add noise
+        for (let i = 0; i < 5; i++) {
+            console.log('Loop iteration:', i, 'Data:', `FLAG{loop_fake_${i}}`);
+        }
+
+        // Fake event listener
+        document.addEventListener('keydown', () => {
+            console.log('Key pressed:', Date.now());
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Walkthrough for WebDevStart
+Objective: Find the flag hidden in the web page.
+Steps:
+
+Open the Page Source: Right-click on the page and select "View Page Source" (or press Ctrl+U in most browsers). This displays the raw HTML code.
+Search for Comments: Scroll through the source code or use the browser's search function (Ctrl+F) to look for HTML comments, which are enclosed in <!-- -->.
+Identify the Real Flag: The page contains multiple distractions, such as fake flags in the HTML (NOT_A_FLAG{try_harder}, FLAG{fake_flag_123}, FLAG{another_decoy}), JavaScript (FLAG{js_decoy_flag}, FLAG{not_the_flag}, FLAG{encoded_but_fake}), and console logs. Ignore these. Look for a standalone comment that contains the real flag: <!-- FLAG{comment_hunter} -->.
+Extract the Flag: The flag is FLAG{comment_hunter}.
