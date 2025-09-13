@@ -12,12 +12,11 @@
                 var firstSheetName = workbook.SheetNames[0];
                 var worksheet = workbook.Sheets[firstSheetName];
 
-                // Convert sheet to JSON to filter blank rows
+                
                 var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                   
                 var filteredData = jsonData.filter(row => row.some(filledCell));
 
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
                 var headerRowIndex = filteredData.findIndex((row, index) =>
                   row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                 );
@@ -79,7 +78,7 @@
         <h1>Parameter Tampering Challenge</h1>
         <p>This simulated web app has a user database. View profiles by setting the ID in the URL (e.g., ?id=1). The backend is emulated in JavaScript. Find the hidden flag!</p>
         
-        <!-- Distracting content -->
+        
         <div class="noise">
             <h2>App Overview</h2>
             <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
@@ -87,7 +86,7 @@
             <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.</p>
         </div>
 
-        <!-- Fake DB schema -->
+        
         <div class="noise">
             <h3>Database Schema</h3>
             <div class="db-sim">
@@ -97,18 +96,18 @@
             <p class="fake-flag">Admin ID: FLAG{fake_admin}</p>
         </div>
 
-        <!-- Profile Output -->
+        
         <div class="noise">
             <h3>User Profile</h3>
             <div id="profile-output" class="output">Enter an ID in the URL (e.g., ?id=1)</div>
         </div>
 
-        <!-- Hidden elements -->
+       
         <div id="hidden-noise1" class="hidden">Irrelevant data!</div>
         <div id="hidden-noise2" class="hidden">Clutter here!</div>
         <div id="hidden-noise3" class="hidden">Nothing to see!</div>
 
-        <!-- More noise -->
+       
         <div class="noise">
             <h3>System Logs</h3>
             <p>Log entry 1: User 1 accessed.</p>
@@ -118,7 +117,7 @@
     </div>
 
     <script>
-        // Simulated SQL Database (100 users + 1 admin)
+        
         var _0x1a2b = [];
         for (var i = 1; i <= 100; i++) {
             _0x1a2b.push({
@@ -128,7 +127,7 @@
                 data: 'Profile for user ' + i
             });
         }
-        // Admin user with the flag, ID 999
+       
         _0x1a2b.push({
             id: 999,
             name: 'admin',
@@ -136,7 +135,7 @@
             data: atob('RkxBR3twYXJhbWV0ZXJfdGFtcGVyZWR9') 
         });
         
-        // Fake functions and variables for distraction
+       
         function fakeQuery(sql) { return 'Error: FLAG{fake_query}'; }
         var decoyDB = [
             {id: 1, data: 'FLAG{decoy_1}'},
@@ -146,13 +145,13 @@
         window.dummyVar = 'FLAG{noise_var}';
         window.fakeAdmin = 'FLAG{fake_admin_id}';
         
-        // Console noise
+        
         console.log('DB init: OK');
         console.log('Fake query:', fakeQuery('SELECT * FROM users'));
         console.log('Decoy DB:', decoyDB[0].data, decoyDB[2].data);
         console.log('Random:', Math.random().toString(36).substring(2));
         
-        // Useless loops and events
+        
         for (let i = 0; i < 5; i++) {
             console.log('Noise log', i, ': FLAG{loop_fake_' + i + '}');
         }
@@ -160,7 +159,7 @@
             console.log('Key event:', Date.now());
         });
         
-        // Vulnerable function - processes GET parameter
+       
         function viewProfile() {
             var urlParams = new URLSearchParams(window.location.search);
             var id = parseInt(urlParams.get('id'));
@@ -168,7 +167,7 @@
                 document.getElementById('profile-output').innerText = 'Please provide a valid ID in the URL (e.g., ?id=1)';
                 return;
             }
-            // Vulnerable: Direct object reference, no auth check
+            
             var user = _0x1a2b.find(u => u.id === id);
             if (user) {
                 document.getElementById('profile-output').innerHTML = 
@@ -181,7 +180,7 @@
             }
         }
         
-        // Fake encoded data
+        
         var encodedNoise = btoa('FLAG{encoded_decoy}');
         console.log('Encoded noise:', encodedNoise);
         
