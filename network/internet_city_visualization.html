@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Metropolis - Complete City Analogy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #667eea 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: auto;
+        }
+        
+        .metropolis-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 25px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .city-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .city-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><polygon fill="rgba(255,255,255,0.1)" points="0,100 1000,100 1000,0 500,50 0,0"/></svg>');
+            background-size: cover;
+        }
+        
+        .city-title {
+            font-size: 3em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .city-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .district-section {
+            padding: 40px;
+            border-bottom: 3px solid #ecf0f1;
+        }
+        
+        .district-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .district-description {
+            text-align: center;
+            font-size: 1.1em;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .buildings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .building {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+        }
+        
+        .building:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border-color: #3498db;
+        }
+        
+        .building-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .building-icon {
+            font-size: 3.5em;
+            margin-right: 20px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        .building-info {
+            flex: 1;
+        }
+        
+        .building-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .building-address {
+            font-size: 1em;
+            color: #e74c3c;
+            font-family: 'Courier New', monospace;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .building-details {
+            margin-top: 20px;
+        }
+        
+        .services-list {
+            margin: 15px 0;
+        }
+        
+        .service {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            display: inline-block;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .service:hover {
+            transform: scale(1.05);
+        }
+        
+        .special-features {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .infrastructure-flow {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            margin: 40px 0;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .flow-title {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+        }
+        
+        .flow-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .flow-step {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .flow-step:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .flow-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .security-district {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .data-district {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .transport-district {
+            background: linear-gradient(145deg, #27ae60, #229954);
+            color: white;
+        }
+        
+        .entertainment-district {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+        
+        .legend-section {
+            background: linear-gradient(145deg, #2c3748, #1a202c);
+            color: white;
+            padding: 40px;
+            margin-top: 40px;
+        }
+        
+        .legend-title {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4fd1c7;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .legend-category {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .legend-category h3 {
+            color: #4fd1c7;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .legend-item:last-child {
+            border-bottom: none;
+        }
+        
+        .legend-icon {
+            font-size: 1.5em;
+            margin-right: 12px;
+            min-width: 40px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            max-width: 250px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #2c3e50;
+        }
+        
+        .building:hover .tooltip {
+            opacity: 1;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        .pulse {
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .traffic-lights {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        
+        .traffic-light {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .red { background: #e74c3c; animation-delay: 0s; }
+        .yellow { background: #f1c40f; animation-delay: 0.7s; }
+        .green { background: #27ae60; animation-delay: 1.4s; }
+    </style>
+</head>
+<body>
+    <div class="metropolis-container">
+        <div class="city-header">
+            <h1 class="city-title">🌍 The Complete Internet Metropolis</h1>
+            <p class="city-subtitle">A Living Digital City Where Data Lives, Works & Travels</p>
+        </div>
+        
+        <!-- RESIDENTIAL DISTRICT -->
+        <div class="district-section">
+            <h2 class="district-title">🏘️ Residential District</h2>
+            <p class="district-description">Where regular users live - homes, apartments, and small offices connected to the city</p>
+            
+            <div class="buildings-grid">
+                <div class="building">
+                    <div class="building-header">
+                        <div class="building-icon">🏠</div>
+                        <div class="building-info">
+                            <div class="building-title">Smart Home</div>
+                            <div class="building-address">192.168.1.10</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🔌 Connected Devices:</strong>
+                        <div class="services-list">
+                            <span class="service">IoT Sensors</span>
+                            <span class="service">Smart TV</span>
+                            <span class="service">Security Camera</span>
+                            <span class="service">WiFi Router</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>NAT Gateway:</strong> Like a front desk that manages all internal traffic and translates private addresses to public ones
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Your home network with private IP addresses (192.168.x.x) that get translated through NAT to communicate with the outside world!
+                    </div>
+                </div>
+                
+                <div class="building">
+                    <div class="building-header">
+                        <div class="building-icon">🏢</div>
+                        <div class="building-info">
+                            <div class="building-title">Small Office</div>
+                            <div class="building-address">10.0.1.0/24</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>💼 Office Services:</strong>
+                        <div class="services-list">
+                            <span class="service">File Server</span>
+                            <span class="service">Print Server</span>
+                            <span class="service">VPN Access</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Subnet:</strong> Like different floors in a building, each with their own address range
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Small business networks use private IP ranges and subnetting to organize different departments and devices efficiently.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- BUSINESS DISTRICT -->
+        <div class="district-section">
+            <h2 class="district-title">🏙️ Business District</h2>
+            <p class="district-description">The commercial heart where websites, applications, and services operate</p>
+            
+            <div class="buildings-grid">
+                <div class="building">
+                    <div class="building-header">
+                        <div class="building-icon">🏬</div>
+                        <div class="building-info">
+                            <div class="building-title">Web Server Mall</div>
+                            <div class="building-address">www.example.com</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🛍️ Store Fronts (Ports):</strong>
+                        <div class="services-list">
+                            <span class="service">Port 80 - HTTP Shop</span>
+                            <span class="service">Port 443 - HTTPS Secure Store</span>
+                            <span class="service">Port 8080 - Alternative Entrance</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Load Balancer:</strong> Like a mall directory that distributes visitors to less crowded stores
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Web servers host multiple websites and use load balancers to distribute traffic across multiple servers for better performance.
+                    </div>
+                </div>
+                
+                <div class="building">
+                    <div class="building-header">
+                        <div class="building-icon">🏦</div>
+                        <div class="building-info">
+                            <div class="building-title">Database Bank</div>
+                            <div class="building-address">db.company.com</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>💰 Vault Services:</strong>
+                        <div class="services-list">
+                            <span class="service">Port 3306 - MySQL</span>
+                            <span class="service">Port 5432 - PostgreSQL</span>
+                            <span class="service">Port 27017 - MongoDB</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>ACID Properties:</strong> Like bank security protocols ensuring data integrity and consistency
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Database servers store and manage data with strict security and consistency rules, just like banks handle money.
+                    </div>
+                </div>
+                
+                <div class="building">
+                    <div class="building-header">
+                        <div class="building-icon">☁️</div>
+                        <div class="building-info">
+                            <div class="building-title">Cloud Skyscraper</div>
+                            <div class="building-address">Multiple Floors</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🏗️ Virtual Floors:</strong>
+                        <div class="services-list">
+                            <span class="service">IaaS - Infrastructure</span>
+                            <span class="service">PaaS - Platform</span>
+                            <span class="service">SaaS - Software</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Virtualization:</strong> Like having multiple virtual offices in one physical building
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Cloud services provide virtual infrastructure, platforms, and software as services, scaling resources as needed.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TRANSPORTATION NETWORK -->
+        <div class="infrastructure-flow transport-district">
+            <h2 class="flow-title">🚦 Transportation Infrastructure</h2>
+            <div class="flow-diagram">
+                <div class="flow-step float">
+                    <span class="flow-icon">🏠</span>
+                    <h3>Local Network</h3>
+                    <p>Your neighborhood (LAN)</p>
+                    <div class="traffic-lights">
+                        <div class="traffic-light green"></div>
+                        <div class="traffic-light yellow"></div>
+                        <div class="traffic-light red"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-step float">
+                    <span class="flow-icon">🌐</span>
+                    <h3>ISP Gateway</h3>
+                    <p>City entrance/exit</p>
+                    <div class="traffic-lights">
+                        <div class="traffic-light red"></div>
+                        <div class="traffic-light green"></div>
+                        <div class="traffic-light yellow"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-step float">
+                    <span class="flow-icon">🛣️</span>
+                    <h3>Internet Backbone</h3>
+                    <p>Major highways</p>
+                    <div class="traffic-lights">
+                        <div class="traffic-light yellow"></div>
+                        <div class="traffic-light red"></div>
+                        <div class="traffic-light green"></div>
+                    </div>
+                </div>
+                
+                <div class="flow-step float">
+                    <span class="flow-icon">🎯</span>
+                    <h3>Destination</h3>
+                    <p>Target server/service</p>
+                    <div class="traffic-lights">
+                        <div class="traffic-light green"></div>
+                        <div class="traffic-light green"></div>
+                        <div class="traffic-light green"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECURITY DISTRICT -->
+        <div class="district-section">
+            <h2 class="district-title">🛡️ Security District</h2>
+            <p class="district-description">Digital law enforcement and protection services keeping the city safe</p>
+            
+            <div class="buildings-grid">
+                <div class="building security-district">
+                    <div class="building-header">
+                        <div class="building-icon">🚨</div>
+                        <div class="building-info">
+                            <div class="building-title">Firewall Police Station</div>
+                            <div class="building-address">Security Perimeter</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🚔 Security Services:</strong>
+                        <div class="services-list">
+                            <span class="service">Packet Inspection</span>
+                            <span class="service">Access Control</span>
+                            <span class="service">Intrusion Detection</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Stateful Inspection:</strong> Like security guards who remember who came in and ensure they properly leave
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Firewalls act as digital border control, inspecting all traffic and blocking unauthorized access attempts.
+                    </div>
+                </div>
+                
+                <div class="building security-district">
+                    <div class="building-header">
+                        <div class="building-icon">🔐</div>
+                        <div class="building-info">
+                            <div class="building-title">Encryption Embassy</div>
+                            <div class="building-address">crypto.secure.gov</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🔑 Diplomatic Services:</strong>
+                        <div class="services-list">
+                            <span class="service">TLS/SSL Certificates</span>
+                            <span class="service">Public Key Infrastructure</span>
+                            <span class="service">Digital Signatures</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Certificate Authority:</strong> Like a government that issues official passports for secure communication
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Encryption services provide digital certificates and secure communication protocols, ensuring data privacy and authenticity.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- UTILITIES DISTRICT -->
+        <div class="district-section">
+            <h2 class="district-title">⚡ Utilities & Infrastructure</h2>
+            <p class="district-description">Essential services that keep the digital city running smoothly</p>
+            
+            <div class="buildings-grid">
+                <div class="building data-district">
+                    <div class="building-header">
+                        <div class="building-icon">📞</div>
+                        <div class="building-info">
+                            <div class="building-title">DNS Phone Company</div>
+                            <div class="building-address">8.8.8.8</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>📋 Directory Services:</strong>
+                        <div class="services-list">
+                            <span class="service">A Records - Addresses</span>
+                            <span class="service">MX Records - Mail Routes</span>
+                            <span class="service">CNAME - Aliases</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Hierarchical System:</strong> Like a phone book organized by countries, states, and cities
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        DNS servers maintain the internet's phone book, translating human-readable names into IP addresses computers can understand.
+                    </div>
+                </div>
+                
+                <div class="building data-district">
+                    <div class="building-header">
+                        <div class="building-icon">📡</div>
+                        <div class="building-info">
+                            <div class="building-title">CDN Distribution Center</div>
+                            <div class="building-address">Global Network</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🌍 Global Warehouses:</strong>
+                        <div class="services-list">
+                            <span class="service">Edge Servers</span>
+                            <span class="service">Content Caching</span>
+                            <span class="service">Load Distribution</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Geographic Distribution:</strong> Like having convenience stores in every neighborhood for faster access
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        CDNs cache popular content worldwide, reducing load times by serving data from the closest geographic location.
+                    </div>
+                </div>
+                
+                <div class="building data-district">
+                    <div class="building-header">
+                        <div class="building-icon">📮</div>
+                        <div class="building-info">
+                            <div class="building-title">Email Postal Service</div>
+                            <div class="building-address">mail.provider.com</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>✉️ Mail Processing:</strong>
+                        <div class="services-list">
+                            <span class="service">SMTP - Sending</span>
+                            <span class="service">IMAP - Storage</span>
+                            <span class="service">POP3 - Retrieval</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Store & Forward:</strong> Like a postal service that holds mail until pickup, with sorting and delivery systems
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Email servers handle message routing, storage, and delivery using multiple protocols for different functions.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ENTERTAINMENT DISTRICT -->
+        <div class="district-section">
+            <h2 class="district-title">🎮 Entertainment District</h2>
+            <p class="district-description">Where digital media, gaming, and streaming services create experiences</p>
+            
+            <div class="buildings-grid">
+                <div class="building entertainment-district">
+                    <div class="building-header">
+                        <div class="building-icon">🎬</div>
+                        <div class="building-info">
+                            <div class="building-title">Streaming Cinema</div>
+                            <div class="building-address">stream.movies.com</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🎥 Media Services:</strong>
+                        <div class="services-list">
+                            <span class="service">Video Streaming</span>
+                            <span class="service">Adaptive Bitrate</span>
+                            <span class="service">Content Delivery</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Quality Adaptation:</strong> Like theaters that adjust screen quality based on viewing distance and connection
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Streaming services dynamically adjust video quality based on your connection speed and device capabilities.
+                    </div>
+                </div>
+                
+                <div class="building entertainment-district">
+                    <div class="building-header">
+                        <div class="building-icon">🎮</div>
+                        <div class="building-info">
+                            <div class="building-title">Gaming Arena</div>
+                            <div class="building-address">game.server.net</div>
+                        </div>
+                    </div>
+                    <div class="building-details">
+                        <strong>🕹️ Gaming Services:</strong>
+                        <div class="services-list">
+                            <span class="service">Real-time Communication</span>
+                            <span class="service">State Synchronization</span>
+                            <span class="service">Anti-cheat Systems</span>
+                        </div>
+                        <div class="special-features">
+                            <strong>Low Latency:</strong> Like having reaction-time competitions where every millisecond matters
+                        </div>
+                    </div>
+                    <div class="tooltip">
+                        Gaming servers require ultra-low latency and real-time synchronization to provide smooth multiplayer experiences.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- COMPREHENSIVE LEGEND -->
+        <div class="legend-section">
+            <h2 class="legend-title">🗺️ Complete City Guide</h2>
+            <div class="legend-grid">
+                <div class="legend-category">
+                    <h3>🏠 Addressing System</h3>
+                    <div class="legend-item">
+                        <div class="legend-icon">🏷️</div>
+                        <div><strong>IPv4:</strong> 4-number street addresses (192.168.1.1)</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon">🏷️</div>
+                        <div><strong>IPv6:</strong> Extended addresses for city expansion</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon">🏘️</div>
+                        <div><strong>Subnets:</strong> Neighborhoods with address ranges</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon">🚪</div>
+                        <div><strong>NAT:</strong> Address translation at city boundaries</div>
+                    </div>
+                </div>
+                
+                <div class="legend-category">
+                    <h3>🚦 Traffic Management</h3>
+                    <div class="legend-item">
+                        <div class="legend-icon">📦</div>
+                        <div><strong>Packets:</strong> Data vehicles carrying information</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon">🛣️</div>
+                        <div><strong>Routing:</strong> Traffic direction at intersections</div>
+                    </div>
+                    <div class="legend-item">
+                
